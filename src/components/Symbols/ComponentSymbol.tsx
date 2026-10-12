@@ -1,0 +1,323 @@
+import React from 'react';
+import type { CircuitComponent } from '../../types/circuit';
+import { COMPONENT_DEFINITIONS } from '../../utils/componentDefinitions';
+import {
+  ResistorSymbol,
+  CapacitorSymbol,
+  CapacitorPolarSymbol,
+  TransformerSymbol,
+} from './PassiveSymbols';
+import {
+  DiodeSymbol,
+  DiodeZenerSymbol,
+  LEDSymbol,
+  ThyristorSymbol,
+  TriacSymbol,
+  BjtNpnSymbol,
+  BjtPnpSymbol,
+  MosfetNSymbol,
+  MosfetPSymbol,
+} from './SemiconductorSymbols';
+import { OpAmpSymbol } from './AnalogSymbols';
+import {
+  GateNotSymbol,
+  GateAndSymbol,
+  GateAnd3Symbol,
+  GateNandSymbol,
+  GateNand3Symbol,
+  GateOrSymbol,
+  GateOr3Symbol,
+  GateNorSymbol,
+  GateNor3Symbol,
+  GateXorSymbol,
+  GateXnorSymbol,
+} from './DigitalGateSymbols';
+import {
+  FlipFlopDSymbol,
+  FlipFlopJkSymbol,
+  FlipFlopSrSymbol,
+  FlipFlopTSymbol,
+  FlipFlopDNegSymbol,
+  FlipFlopJkNegSymbol,
+  FlipFlopSrNegSymbol,
+  FlipFlopTNegSymbol,
+} from './DigitalFlipFlopSymbols';
+import {
+  GndSymbol,
+  VccSymbol,
+  SourceDcSymbol,
+  SourceAcSymbol,
+  ClockSymbol,
+  LogicInputSymbol,
+  ProbeSymbol,
+  PinTerminalSymbol,
+  TextSymbol,
+} from './PowerIOSymbols';
+
+interface ComponentSymbolProps {
+  component: CircuitComponent;
+  isSelected?: boolean;
+  onPinClick?: (pinId: string, e: React.MouseEvent) => void;
+  activePinId?: string | null;
+}
+
+export const ComponentSymbol: React.FC<ComponentSymbolProps> = ({
+  component,
+  isSelected,
+  onPinClick,
+  activePinId,
+}) => {
+  const def = COMPONENT_DEFINITIONS[component.type];
+  if (!def) return null;
+
+  const renderInnerSymbol = () => {
+    switch (component.type) {
+      // Passivos
+      case 'RESISTOR':
+        return <ResistorSymbol component={component} isSelected={isSelected} />;
+      case 'CAPACITOR':
+        return <CapacitorSymbol component={component} isSelected={isSelected} />;
+      case 'CAPACITOR_POLAR':
+        return <CapacitorPolarSymbol component={component} isSelected={isSelected} />;
+      case 'TRANSFORMER':
+        return <TransformerSymbol component={component} isSelected={isSelected} />;
+
+      // Semicondutores Diodos
+      case 'DIODE':
+        return <DiodeSymbol component={component} isSelected={isSelected} />;
+      case 'DIODE_ZENER':
+        return <DiodeZenerSymbol component={component} isSelected={isSelected} />;
+      case 'LED':
+        return <LEDSymbol component={component} isSelected={isSelected} />;
+      case 'THYRISTOR':
+        return <ThyristorSymbol component={component} isSelected={isSelected} />;
+      case 'TRIAC':
+        return <TriacSymbol component={component} isSelected={isSelected} />;
+
+      // Transistores
+      case 'BJT_NPN':
+        return <BjtNpnSymbol component={component} isSelected={isSelected} />;
+      case 'BJT_PNP':
+        return <BjtPnpSymbol component={component} isSelected={isSelected} />;
+      case 'MOSFET_N':
+        return <MosfetNSymbol component={component} isSelected={isSelected} />;
+      case 'MOSFET_P':
+        return <MosfetPSymbol component={component} isSelected={isSelected} />;
+
+      // Analógicos
+      case 'OPAMP':
+        return <OpAmpSymbol component={component} isSelected={isSelected} />;
+
+      // Portas Lógicas Digitais
+      case 'GATE_NOT':
+        return <GateNotSymbol component={component} isSelected={isSelected} />;
+      case 'GATE_AND':
+        return <GateAndSymbol component={component} isSelected={isSelected} />;
+      case 'GATE_AND3':
+        return <GateAnd3Symbol component={component} isSelected={isSelected} />;
+      case 'GATE_NAND':
+        return <GateNandSymbol component={component} isSelected={isSelected} />;
+      case 'GATE_NAND3':
+        return <GateNand3Symbol component={component} isSelected={isSelected} />;
+      case 'GATE_OR':
+        return <GateOrSymbol component={component} isSelected={isSelected} />;
+      case 'GATE_OR3':
+        return <GateOr3Symbol component={component} isSelected={isSelected} />;
+      case 'GATE_NOR':
+        return <GateNorSymbol component={component} isSelected={isSelected} />;
+      case 'GATE_NOR3':
+        return <GateNor3Symbol component={component} isSelected={isSelected} />;
+      case 'GATE_XOR':
+        return <GateXorSymbol component={component} isSelected={isSelected} />;
+      case 'GATE_XNOR':
+        return <GateXnorSymbol component={component} isSelected={isSelected} />;
+
+      // Flip-Flops Digitais
+      case 'FF_D':
+        return <FlipFlopDSymbol component={component} isSelected={isSelected} />;
+      case 'FF_JK':
+        return <FlipFlopJkSymbol component={component} isSelected={isSelected} />;
+      case 'FF_SR':
+        return <FlipFlopSrSymbol component={component} isSelected={isSelected} />;
+      case 'FF_T':
+        return <FlipFlopTSymbol component={component} isSelected={isSelected} />;
+      case 'FF_D_NEG':
+        return <FlipFlopDNegSymbol component={component} isSelected={isSelected} />;
+      case 'FF_JK_NEG':
+        return <FlipFlopJkNegSymbol component={component} isSelected={isSelected} />;
+      case 'FF_SR_NEG':
+        return <FlipFlopSrNegSymbol component={component} isSelected={isSelected} />;
+      case 'FF_T_NEG':
+        return <FlipFlopTNegSymbol component={component} isSelected={isSelected} />;
+
+      // Alimentação e E/S
+      case 'GND':
+        return <GndSymbol component={component} isSelected={isSelected} />;
+      case 'VCC':
+        return <VccSymbol component={component} isSelected={isSelected} />;
+      case 'SOURCE_DC':
+        return <SourceDcSymbol component={component} isSelected={isSelected} />;
+      case 'SOURCE_AC':
+        return <SourceAcSymbol component={component} isSelected={isSelected} />;
+      case 'CLOCK':
+        return <ClockSymbol component={component} isSelected={isSelected} />;
+      case 'LOGIC_INPUT':
+        return <LogicInputSymbol component={component} isSelected={isSelected} />;
+      case 'PROBE':
+        return <ProbeSymbol component={component} isSelected={isSelected} />;
+      case 'PIN_TERMINAL':
+        return <PinTerminalSymbol component={component} isSelected={isSelected} />;
+      case 'TEXT':
+        return <TextSymbol component={component} isSelected={isSelected} />;
+      case 'JUNCTION':
+        return null; // O pino do nó é desenhado pelos pinos abaixo ou WireRenderer
+
+      default:
+        return null;
+    }
+  };
+
+  const transform = `translate(${component.x}, ${component.y}) rotate(${
+    component.rotation
+  }) scale(${component.mirrored ? -1 : 1}, 1)`;
+
+  return (
+    <g className="select-none cursor-pointer group" transform={transform}>
+      {/* Área transparente estendida de captura de clique (Hit Box) */}
+      <rect
+        x={-def.width / 2 - 12}
+        y={-def.height / 2 - 12}
+        width={def.width + 24}
+        height={def.height + 24}
+        fill="transparent"
+        className="pointer-events-auto"
+      />
+
+      {/* Halo de destaque ao selecionar */}
+      {isSelected && (
+        <rect
+          x={-def.width / 2 - 10}
+          y={-def.height / 2 - 10}
+          width={def.width + 20}
+          height={def.height + 20}
+          rx="8"
+          fill="rgba(79, 70, 229, 0.04)"
+          stroke="#818cf8"
+          strokeWidth="1.5"
+          strokeDasharray="4 4"
+          className="animate-pulse"
+        />
+      )}
+
+      {/* Desenho do símbolo */}
+      {renderInnerSymbol()}
+
+      {/* Rótulo (Label ex: R1) e Valor (ex: 10k) - oculta para nó de junção, GND e TEXT */}
+      {component.type !== 'JUNCTION' && component.type !== 'GND' && component.type !== 'TEXT' && (() => {
+        const isVertical = component.rotation % 180 !== 0;
+        const hasValue = Boolean(
+          component.value &&
+          component.value !== component.label &&
+          component.type !== 'PIN_TERMINAL'
+        );
+
+        if (isVertical) {
+          return (
+            <g
+              transform={`rotate(${-component.rotation}) scale(${
+                component.mirrored ? -1 : 1
+              }, 1)`}
+              className="pointer-events-none select-none"
+            >
+              <text
+                x={hasValue ? -def.height / 2 - 8 : 0}
+                y={hasValue ? 4 : -def.width / 2 - 8}
+                textAnchor={hasValue ? 'end' : 'middle'}
+                fontSize="12"
+                fontWeight="bold"
+                fill="#0f172a"
+              >
+                {component.label}
+              </text>
+              {hasValue && (
+                <text
+                  x={def.height / 2 + 8}
+                  y="4"
+                  textAnchor="start"
+                  fontSize="11"
+                  fontWeight="semibold"
+                  fill="#334155"
+                >
+                  {component.value}
+                  {component.frequency ? `, ${component.frequency}` : ''}
+                </text>
+              )}
+            </g>
+          );
+        }
+
+        return (
+          <g
+            transform={`rotate(${-component.rotation}) scale(${
+              component.mirrored ? -1 : 1
+            }, 1)`}
+            className="pointer-events-none select-none"
+          >
+            <text
+              x="0"
+              y={-def.height / 2 - 6}
+              textAnchor="middle"
+              fontSize="12"
+              fontWeight="bold"
+              fill="#0f172a"
+            >
+              {component.label}
+            </text>
+            {hasValue && (
+              <text
+                x="0"
+                y={def.height / 2 + 16}
+                textAnchor="middle"
+                fontSize="11"
+                fontWeight="semibold"
+                fill="#334155"
+              >
+                {component.value}
+                {component.frequency ? `, ${component.frequency}` : ''}
+              </text>
+            )}
+          </g>
+        );
+      })()}
+
+      {/* Pinos de conexão (Snapping points) */}
+      {def.pins.map((pin) => {
+        const isActive = activePinId === pin.id;
+        return (
+          <g
+            key={pin.id}
+            transform={`translate(${pin.relX}, ${pin.relY})`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onPinClick?.(pin.id, e);
+            }}
+            className="cursor-crosshair group/pin"
+          >
+            {/* Halo invisível ampliado para facilitar o clique */}
+            <circle cx="0" cy="0" r="10" fill="transparent" />
+            {/* Ponto do pino */}
+            <circle
+              cx="0"
+              cy="0"
+              r={isActive ? '6' : '4'}
+              fill={isActive ? '#4f46e5' : '#0f172a'}
+              stroke="#ffffff"
+              strokeWidth="1.5"
+              className="transition-all duration-150 group-hover/pin:scale-150 group-hover/pin:fill-indigo-600"
+            />
+          </g>
+        );
+      })}
+    </g>
+  );
+};
