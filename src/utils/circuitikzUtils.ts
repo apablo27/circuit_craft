@@ -342,55 +342,6 @@ export function exportToCircuitikz(
     SOURCE_AC: 'sV',
   };
 
-  // Função para retornar a âncora ou símbolo terminal no ponto (x, y) ou pino
-  const resolvePointAnchor = (compId?: string, pinId?: string, px?: number, py?: number): { str: string; isTerminalNode: boolean } => {
-    if (compId && pinId) {
-      const comp = components.find((c) => c.id === compId);
-      if (comp) {
-        if (comp.type === 'BJT_NPN' || comp.type === 'BJT_PNP') {
-          const bjtMap: Record<string, string> = { base: 'B', collector: 'C', emitter: 'E' };
-          const anchor = bjtMap[pinId];
-          if (anchor) return { str: `(${getTikzId(comp.id)}.${anchor})`, isTerminalNode: true };
-        } else if (comp.type === 'TRANSFORMER') {
-          const transMap: Record<string, string> = { p1_in: 'A1', p2_in: 'A2', sec1_out: 'B1', sec2_out: 'B2' };
-          const anchor = transMap[pinId];
-          if (anchor) return { str: `(${getTikzId(comp.id)}.${anchor})`, isTerminalNode: true };
-        } else if (comp.type === 'GND') {
-          return { str: `node[ground]{}`, isTerminalNode: true };
-        } else if (comp.type === 'VCC') {
-          const valFormatted = formatValueForLatex(comp.value || '+V_{CC}');
-          return { str: `node[vcc]{$${valFormatted}$}`, isTerminalNode: true };
-        }
-      }
-    }
-
-    if (px !== undefined && py !== undefined) {
-      for (const comp of components) {
-        if (comp.type === 'BJT_NPN' || comp.type === 'BJT_PNP') {
-          const def = COMPONENT_DEFINITIONS[comp.type];
-          for (const pin of def.pins) {
-            const pPos = getAbsolutePinPosition(comp, pin.id);
-            if (Math.hypot(pPos.x - px, pPos.y - py) <= 15) {
-              const bjtMap: Record<string, string> = { base: 'B', collector: 'C', emitter: 'E' };
-              const anchor = bjtMap[pin.id];
-              if (anchor) return { str: `(${getTikzId(comp.id)}.${anchor})`, isTerminalNode: true };
-            }
-          }
-        } else if (comp.type === 'GND') {
-          if (Math.hypot(comp.x - px, comp.y - py) <= 15) {
-            return { str: `node[ground]{}`, isTerminalNode: true };
-          }
-        } else if (comp.type === 'VCC') {
-          if (Math.hypot(comp.x - px, comp.y - py) <= 15) {
-            const valFormatted = formatValueForLatex(comp.value || '+V_{CC}');
-            return { str: `node[vcc]{$${valFormatted}$}`, isTerminalNode: true };
-          }
-        }
-      }
-      return { str: `(${toTikZ(px, py)})`, isTerminalNode: false };
-    }
-    return { str: '(0,0)', isTerminalNode: false };
-  };
 
   // 2. Conexões de Componentes Bipolos
   components.forEach((c) => {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Cpu, Layers, Sparkles, Plus, Minus } from 'lucide-react';
+import { X, Sparkles, Plus, Minus } from 'lucide-react';
 import { useCircuitStore } from '../../store/useCircuitStore';
 import {
   generateBridgeRectifier,
@@ -8,6 +8,7 @@ import {
   generateSeriesResistors,
   generateJKCounter3Bit,
   generateSisoRegister3Bit,
+  type PresetResult,
 } from '../../utils/presetCircuits';
 
 interface PresetModalProps {
@@ -33,7 +34,7 @@ export const PresetModal: React.FC<PresetModalProps> = ({ isOpen, onClose }) => 
   if (!isOpen) return null;
 
   const handleGenerate = () => {
-    let result = { components: [], wires: [] };
+    let result: PresetResult = { components: [], wires: [] };
     const cx = 400;
     const cy = 300;
 
