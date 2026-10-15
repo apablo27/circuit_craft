@@ -8,7 +8,11 @@ interface SymbolProps {
 
 export const GateNotSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       <line x1="-30" y1="0" x2="-15" y2="0" />
       <polygon points="-15,-15 -15,15 15,0" fill="#f8fafc" strokeLinejoin="round" />
       {/* Bolha de Inversão */}
@@ -20,7 +24,11 @@ export const GateNotSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const GateAndSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       <line x1="-40" y1="-20" x2="-20" y2="-20" />
       <line x1="-40" y1="20" x2="-20" y2="20" />
       {/* Formato AND ANSI (D invertido) */}
@@ -32,7 +40,11 @@ export const GateAndSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const GateAnd3Symbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       <line x1="-40" y1="-20" x2="-20" y2="-20" />
       <line x1="-40" y1="0" x2="-20" y2="0" />
       <line x1="-40" y1="20" x2="-20" y2="20" />
@@ -44,7 +56,11 @@ export const GateAnd3Symbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const GateNandSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       <line x1="-40" y1="-20" x2="-20" y2="-20" />
       <line x1="-40" y1="20" x2="-20" y2="20" />
       <path d="M -20 -25 L 0 -25 A 25 25 0 0 1 0 25 L -20 25 Z" fill="#f8fafc" strokeLinejoin="round" />
@@ -56,7 +72,11 @@ export const GateNandSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const GateNand3Symbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       <line x1="-40" y1="-20" x2="-20" y2="-20" />
       <line x1="-40" y1="0" x2="-20" y2="0" />
       <line x1="-40" y1="20" x2="-20" y2="20" />
@@ -69,7 +89,11 @@ export const GateNand3Symbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const GateOrSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       <line x1="-40" y1="-20" x2="-15" y2="-20" />
       <line x1="-40" y1="20" x2="-15" y2="20" />
       {/* Formato OR ANSI (Ponta curvada) */}
@@ -81,7 +105,11 @@ export const GateOrSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const GateOr3Symbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       <line x1="-40" y1="-20" x2="-15" y2="-20" />
       <line x1="-40" y1="0" x2="-12" y2="0" />
       <line x1="-40" y1="20" x2="-15" y2="20" />
@@ -93,7 +121,11 @@ export const GateOr3Symbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const GateNor3Symbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       <line x1="-40" y1="-20" x2="-15" y2="-20" />
       <line x1="-40" y1="0" x2="-12" y2="0" />
       <line x1="-40" y1="20" x2="-15" y2="20" />
@@ -106,7 +138,11 @@ export const GateNor3Symbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const GateNorSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       <line x1="-40" y1="-20" x2="-15" y2="-20" />
       <line x1="-40" y1="20" x2="-15" y2="20" />
       <path d="M -25 -25 Q -15 0 -25 25 Q 5 25 25 0 Q 5 -25 -25 -25 Z" fill="#f8fafc" strokeLinejoin="round" />
@@ -118,7 +154,11 @@ export const GateNorSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const GateXorSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       <line x1="-40" y1="-20" x2="-20" y2="-20" />
       <line x1="-40" y1="20" x2="-20" y2="20" />
       {/* Arco de entrada extra para XOR */}
@@ -131,7 +171,11 @@ export const GateXorSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const GateXnorSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       <line x1="-40" y1="-20" x2="-20" y2="-20" />
       <line x1="-40" y1="20" x2="-20" y2="20" />
       <path d="M -30 -25 Q -20 0 -30 25" fill="none" />

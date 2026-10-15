@@ -8,7 +8,11 @@ interface SymbolProps {
 
 export const FlipFlopDSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       {/* Corpo Retangular */}
       <rect x="-30" y="-35" width="60" height="70" rx="4" fill="#f8fafc" strokeLinejoin="round" />
       {/* Pinos Entrada */}
@@ -38,7 +42,11 @@ export const FlipFlopDSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const FlipFlopJkSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       <rect x="-30" y="-35" width="60" height="70" rx="4" fill="#f8fafc" strokeLinejoin="round" />
       <line x1="-40" y1="-20" x2="-30" y2="-20" />
       <line x1="-40" y1="0" x2="-30" y2="0" />
@@ -64,7 +72,11 @@ export const FlipFlopJkSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const FlipFlopSrSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       <rect x="-30" y="-35" width="60" height="70" rx="4" fill="#f8fafc" strokeLinejoin="round" />
       <line x1="-40" y1="-20" x2="-30" y2="-20" />
       <line x1="-40" y1="0" x2="-30" y2="0" />
@@ -83,7 +95,11 @@ export const FlipFlopSrSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const FlipFlopTSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       <rect x="-30" y="-35" width="60" height="70" rx="4" fill="#f8fafc" strokeLinejoin="round" />
       <line x1="-40" y1="-20" x2="-30" y2="-20" />
       <line x1="-40" y1="20" x2="-30" y2="20" />
@@ -101,7 +117,11 @@ export const FlipFlopTSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
 // --- SIMBOLOS DE BORDA DE DESCIDA (NEG) ---
 export const FlipFlopDNegSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       <rect x="-30" y="-35" width="60" height="70" rx="4" fill="#f8fafc" strokeLinejoin="round" />
       <line x1="-40" y1="-20" x2="-30" y2="-20" />
       <line x1="-40" y1="20" x2="-30" y2="20" />
@@ -120,7 +140,11 @@ export const FlipFlopDNegSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const FlipFlopJkNegSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       <rect x="-30" y="-35" width="60" height="70" rx="4" fill="#f8fafc" strokeLinejoin="round" />
       <line x1="-40" y1="-20" x2="-30" y2="-20" />
       <line x1="-40" y1="0" x2="-30" y2="0" />
@@ -141,7 +165,11 @@ export const FlipFlopJkNegSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const FlipFlopSrNegSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       <rect x="-30" y="-35" width="60" height="70" rx="4" fill="#f8fafc" strokeLinejoin="round" />
       <line x1="-40" y1="-20" x2="-30" y2="-20" />
       <line x1="-40" y1="0" x2="-30" y2="0" />
@@ -162,7 +190,11 @@ export const FlipFlopSrNegSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const FlipFlopTNegSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       <rect x="-30" y="-35" width="60" height="70" rx="4" fill="#f8fafc" strokeLinejoin="round" />
       <line x1="-40" y1="-20" x2="-30" y2="-20" />
       <line x1="-40" y1="20" x2="-30" y2="20" />

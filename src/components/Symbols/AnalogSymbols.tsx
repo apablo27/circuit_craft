@@ -8,7 +8,11 @@ interface SymbolProps {
 
 export const OpAmpSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       {/* Triângulo do AmpOp */}
       <polygon points="-30,-35 -30,35 30,0" fill="#f8fafc" strokeLinejoin="round" />
       

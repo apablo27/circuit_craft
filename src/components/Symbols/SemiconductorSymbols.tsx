@@ -8,7 +8,11 @@ interface SymbolProps {
 
 export const DiodeSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       {/* Pinos */}
       <line x1="-40" y1="0" x2="-15" y2="0" />
       <line x1="15" y1="0" x2="40" y2="0" />
@@ -22,7 +26,11 @@ export const DiodeSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const DiodeZenerSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       {/* Pinos */}
       <line x1="-40" y1="0" x2="-15" y2="0" />
       <line x1="15" y1="0" x2="40" y2="0" />
@@ -37,7 +45,11 @@ export const DiodeZenerSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
 export const LEDSymbol: React.FC<SymbolProps> = ({ component, isSelected }) => {
   const ledColor = component.color || '#ef4444';
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       {/* Pinos */}
       <line x1="-40" y1="0" x2="-15" y2="0" />
       <line x1="15" y1="0" x2="40" y2="0" />
@@ -58,7 +70,11 @@ export const LEDSymbol: React.FC<SymbolProps> = ({ component, isSelected }) => {
 
 export const BjtNpnSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       {/* Base */}
       <line x1="-30" y1="0" x2="-10" y2="0" />
       <line x1="-10" y1="-16" x2="-10" y2="16" strokeWidth="2.5" />
@@ -75,7 +91,11 @@ export const BjtNpnSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const BjtPnpSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       {/* Base */}
       <line x1="-30" y1="0" x2="-10" y2="0" />
       <line x1="-10" y1="-16" x2="-10" y2="16" strokeWidth="2.5" />
@@ -92,7 +112,11 @@ export const BjtPnpSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const MosfetNSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       {/* Gate */}
       <line x1="-30" y1="0" x2="-12" y2="0" />
       <line x1="-12" y1="-20" x2="-12" y2="20" strokeWidth="2.5" />
@@ -116,7 +140,12 @@ export const MosfetNSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const MosfetPSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
+      {/* Gate */}
       <line x1="-30" y1="0" x2="-12" y2="0" />
       <line x1="-12" y1="-20" x2="-12" y2="20" strokeWidth="2.5" />
       <line x1="-5" y1="-20" x2="-5" y2="-10" strokeWidth="2.5" />
@@ -136,7 +165,11 @@ export const MosfetPSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const ThyristorSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       {/* Anodo (Esquerda) e Catodo (Direita) */}
       <line x1="-40" y1="0" x2="-15" y2="0" strokeLinecap="round" />
       <line x1="15" y1="0" x2="40" y2="0" strokeLinecap="round" />
@@ -153,7 +186,11 @@ export const ThyristorSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const TriacSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       {/* MT1 (Esquerda) e MT2 (Direita) */}
       <line x1="-40" y1="0" x2="-12" y2="0" strokeLinecap="round" />
       <line x1="12" y1="0" x2="40" y2="0" strokeLinecap="round" />

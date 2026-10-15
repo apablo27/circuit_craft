@@ -8,7 +8,11 @@ interface SymbolProps {
 
 export const GndSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       <line x1="0" y1="-20" x2="0" y2="0" strokeLinecap="round" />
       {/* 3 Linhas Decrescentes do Terra */}
       <line x1="-16" y1="0" x2="16" y2="0" strokeLinecap="round" />
@@ -20,7 +24,11 @@ export const GndSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const VccSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       <line x1="0" y1="20" x2="0" y2="0" strokeLinecap="round" />
       {/* Seta para Cima VCC */}
       <polygon points="0,-15 -10,0 10,0" fill="#6366f1" stroke="#4f46e5" strokeLinejoin="round" />
@@ -30,7 +38,11 @@ export const VccSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const SourceDcSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       <line x1="0" y1="-40" x2="0" y2="-18" />
       <line x1="0" y1="18" x2="0" y2="40" />
       <circle cx="0" cy="0" r="18" fill="#f8fafc" />
@@ -42,7 +54,11 @@ export const SourceDcSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const SourceAcSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       <line x1="0" y1="-40" x2="0" y2="-18" />
       <line x1="0" y1="18" x2="0" y2="40" />
       <circle cx="0" cy="0" r="18" fill="#f8fafc" />
@@ -54,7 +70,11 @@ export const SourceAcSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const ClockSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       <rect x="-20" y="-15" width="35" height="30" rx="3" fill="#f8fafc" />
       <line x1="15" y1="0" x2="40" y2="0" />
       {/* Pulso Quadrado de Clock */}
@@ -66,7 +86,11 @@ export const ClockSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
 export const LogicInputSymbol: React.FC<SymbolProps> = ({ component, isSelected }) => {
   const val = component.value.includes('0') || component.value.toLowerCase().includes('low') ? '0' : '1';
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       <rect x="-20" y="-15" width="35" height="30" rx="3" fill={val === '1' ? '#dcfce7' : '#f1f5f9'} />
       <line x1="15" y1="0" x2="40" y2="0" />
       <text x="-6" y="5" fontSize="14" fontWeight="bold" fill={val === '1' ? '#166534' : '#475569'} stroke="none">
@@ -78,7 +102,11 @@ export const LogicInputSymbol: React.FC<SymbolProps> = ({ component, isSelected 
 
 export const ProbeSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       <line x1="-40" y1="0" x2="-15" y2="0" />
       <circle cx="0" cy="0" r="15" fill="#fef08a" />
       <text x="-4" y="5" fontSize="12" fontWeight="bold" fill="#854d0e" stroke="none">OUT</text>
@@ -88,7 +116,11 @@ export const ProbeSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const PinTerminalSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       <line x1="-40" y1="0" x2="-14" y2="0" strokeLinecap="round" />
       <circle cx="0" cy="0" r="14" fill="#ffffff" />
     </g>

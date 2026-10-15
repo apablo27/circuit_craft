@@ -8,7 +8,11 @@ interface SymbolProps {
 
 export const ResistorSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       {/* Pinos de conexão */}
       <line x1="-40" y1="0" x2="-25" y2="0" strokeLinecap="round" />
       <line x1="25" y1="0" x2="40" y2="0" strokeLinecap="round" />
@@ -25,7 +29,11 @@ export const ResistorSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const CapacitorSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       {/* Pinos */}
       <line x1="-40" y1="0" x2="-8" y2="0" strokeLinecap="round" />
       <line x1="8" y1="0" x2="40" y2="0" strokeLinecap="round" />
@@ -38,7 +46,11 @@ export const CapacitorSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const CapacitorPolarSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       {/* Pinos */}
       <line x1="-40" y1="0" x2="-8" y2="0" strokeLinecap="round" />
       <line x1="8" y1="0" x2="40" y2="0" strokeLinecap="round" />
@@ -54,7 +66,11 @@ export const CapacitorPolarSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
 
 export const TransformerSymbol: React.FC<SymbolProps> = ({ isSelected }) => {
   return (
-    <g className={isSelected ? 'stroke-indigo-500 stroke-[3]' : 'stroke-slate-800 stroke-[2]'}>
+    <g
+      stroke={isSelected ? '#4f46e5' : '#0f172a'}
+      strokeWidth={isSelected ? '3' : '2'}
+      className={isSelected ? 'stroke-indigo-600 stroke-[3]' : 'stroke-slate-900 stroke-[2]'}
+    >
       {/* Pinos Primários (Esquerda) */}
       <line x1="-50" y1="-20" x2="-25" y2="-20" strokeLinecap="round" />
       <line x1="-50" y1="20" x2="-25" y2="20" strokeLinecap="round" />
