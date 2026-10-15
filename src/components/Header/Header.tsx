@@ -6,27 +6,19 @@ import {
   Trash2,
   FolderOpen,
   Save,
-  ZoomIn,
-  ZoomOut,
   Cpu,
-  Code,
   HelpCircle,
-  Sparkles,
 } from 'lucide-react';
 import { useCircuitStore } from '../../store/useCircuitStore';
 
 interface HeaderProps {
   onOpenExportModal: () => void;
-  onOpenCircuitikzModal: () => void;
   onOpenShortcutsModal: () => void;
-  onOpenPresetModal: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   onOpenExportModal,
-  onOpenCircuitikzModal,
   onOpenShortcutsModal,
-  onOpenPresetModal,
 }) => {
   const {
     undo,
@@ -36,8 +28,6 @@ export const Header: React.FC<HeaderProps> = ({
     clearCanvas,
     loadProject,
     getProjectJson,
-    zoom,
-    setZoom,
   } = useCircuitStore();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -66,27 +56,32 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 text-slate-800 px-6 flex items-center justify-between shadow-sm z-20 select-none">
-      {/* Esquerda: Logo e Título */}
+    <header className="h-16 bg-white border-b border-slate-200 text-slate-800 px-6 flex items-center justify-between shadow-xs z-20 select-none">
+      {/* Esquerda: Logo e Título Técnico */}
       <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center text-white">
-          <Cpu className="w-5 h-5" />
+        <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-xs">
+          <Cpu className="w-4 h-4" />
         </div>
         <div>
-          <h1 className="font-bold text-lg leading-tight text-slate-900">
-            CircuitCraft <span className="text-indigo-600 font-medium text-xs bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200">Web</span>
-          </h1>
-          <p className="text-xs text-slate-500">Desenho e Exportação Didática de Circuitos</p>
+          <div className="flex items-center gap-2">
+            <h1 className="font-bold text-base leading-tight text-slate-900 tracking-tight">
+              CircuitCraft
+            </h1>
+            <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 uppercase">
+              Didático / Pro
+            </span>
+          </div>
+          <p className="text-[11px] text-slate-500">Desenho e Exportação Didática de Circuitos</p>
         </div>
       </div>
 
-      {/* Centro: Ferramentas de Edição e Histórico */}
+      {/* Centro: Ferramentas de Histórico e Limpeza */}
       <div className="flex items-center gap-1 bg-slate-100/80 p-1.5 rounded-xl border border-slate-200">
         <button
           onClick={undo}
           disabled={historyIndex < 0}
           title="Desfazer (Ctrl+Z)"
-          className="p-2 rounded-lg hover:bg-slate-200 disabled:opacity-40 disabled:hover:bg-transparent text-slate-700 transition-colors"
+          className="p-2 rounded-lg hover:bg-slate-200 disabled:opacity-40 disabled:hover:bg-transparent text-slate-700 transition-colors cursor-pointer"
         >
           <RotateCcw className="w-4 h-4" />
         </button>
@@ -94,7 +89,7 @@ export const Header: React.FC<HeaderProps> = ({
           onClick={redo}
           disabled={historyIndex >= history.length - 1}
           title="Refazer (Ctrl+Y)"
-          className="p-2 rounded-lg hover:bg-slate-200 disabled:opacity-40 disabled:hover:bg-transparent text-slate-700 transition-colors"
+          className="p-2 rounded-lg hover:bg-slate-200 disabled:opacity-40 disabled:hover:bg-transparent text-slate-700 transition-colors cursor-pointer"
         >
           <RotateCw className="w-4 h-4" />
         </button>
@@ -102,37 +97,15 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="w-px h-5 bg-slate-300 mx-1" />
 
         <button
-          onClick={() => setZoom((z) => Math.max(0.4, z - 0.1))}
-          title="Diminuir Zoom"
-          className="p-2 rounded-lg hover:bg-slate-200 text-slate-700 transition-colors"
-        >
-          <ZoomOut className="w-4 h-4" />
-        </button>
-
-        <span className="text-xs font-mono px-2 text-slate-700 w-12 text-center font-semibold">
-          {Math.round(zoom * 100)}%
-        </span>
-
-        <button
-          onClick={() => setZoom((z) => Math.min(2.5, z + 0.1))}
-          title="Aumentar Zoom"
-          className="p-2 rounded-lg hover:bg-slate-200 text-slate-700 transition-colors"
-        >
-          <ZoomIn className="w-4 h-4" />
-        </button>
-
-        <div className="w-px h-5 bg-slate-300 mx-1" />
-
-        <button
           onClick={clearCanvas}
-          title="Limpar Canvas"
-          className="p-2 rounded-lg hover:bg-red-100 text-red-600 transition-colors"
+          title="Limpar Bancada"
+          className="p-2 rounded-lg hover:bg-red-50 hover:text-red-600 text-slate-500 transition-colors cursor-pointer"
         >
           <Trash2 className="w-4 h-4" />
         </button>
       </div>
 
-      {/* Direita: Salvar, Abrir e Exportar Imagem */}
+      {/* Direita: Salvar, Abrir, Atalhos e Exportar */}
       <div className="flex items-center gap-2">
         <input
           type="file"
@@ -144,55 +117,44 @@ export const Header: React.FC<HeaderProps> = ({
 
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg border border-slate-200 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg border border-slate-200 transition-colors cursor-pointer"
           title="Abrir projeto salvo em JSON"
         >
-          <FolderOpen className="w-4 h-4" />
-          Abrir
+          <FolderOpen className="w-4 h-4 text-slate-600" />
+          <span>Abrir</span>
         </button>
 
         <button
           onClick={handleSaveJson}
-          className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg border border-slate-200 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg border border-slate-200 transition-colors cursor-pointer"
           title="Salvar projeto em JSON"
         >
-          <Save className="w-4 h-4" />
-          Salvar
-        </button>
-
-        <button
-          onClick={onOpenPresetModal}
-          className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg border border-amber-200 transition-colors shadow-xs"
-          title="Inserir circuitos didáticos prontos (Ponte de diodos, LED, Resistores...)"
-        >
-          <Sparkles className="w-4 h-4 text-amber-600" />
-          Circuitos Prontos
+          <Save className="w-4 h-4 text-slate-600" />
+          <span>Salvar</span>
         </button>
 
         <button
           onClick={onOpenShortcutsModal}
-          className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg border border-slate-200 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg border border-slate-200 transition-colors cursor-pointer"
           title="Ver atalhos de teclado e guia de uso"
         >
-          <HelpCircle className="w-4 h-4 text-indigo-600" />
-          Atalhos
+          <HelpCircle className="w-4 h-4 text-slate-600" />
+          <span>Atalhos</span>
         </button>
 
-        <button
-          onClick={onOpenCircuitikzModal}
-          className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg border border-indigo-200 transition-colors"
-          title="Importar/Exportar código LaTeX CircuiTikZ"
-        >
-          <Code className="w-4 h-4" />
-          LaTeX (CircuiTikZ)
-        </button>
+        <div className="flex items-center gap-1.5 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full font-mono">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-[11px] font-medium">Sincronizado</span>
+        </div>
 
+        {/* Botão Único de Exportação */}
         <button
           onClick={onOpenExportModal}
-          className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-md shadow-indigo-600/20 transition-all hover:scale-105 active:scale-95"
+          className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-all hover:scale-105 active:scale-95 cursor-pointer"
+          title="Exportar esquemático (PNG, SVG, PDF ou Código LaTeX)"
         >
           <Download className="w-4 h-4" />
-          Exportar Imagem (PNG/SVG/PDF)
+          <span>Exportar</span>
         </button>
       </div>
     </header>

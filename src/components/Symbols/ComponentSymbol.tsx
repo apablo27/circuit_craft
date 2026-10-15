@@ -193,30 +193,45 @@ export const ComponentSymbol: React.FC<ComponentSymbolProps> = ({
         className="pointer-events-auto"
       />
 
-      {/* Halo de destaque ao selecionar */}
+      {/* Caixa de seleção estilo CAD / Tinkercad */}
       {isSelected && (
-        <rect
-          x={-def.width / 2 - 10}
-          y={-def.height / 2 - 10}
-          width={def.width + 20}
-          height={def.height + 20}
-          rx="8"
-          fill="rgba(79, 70, 229, 0.04)"
-          stroke="#818cf8"
-          strokeWidth="1.5"
-          strokeDasharray="4 4"
-          className="animate-pulse"
-        />
+        <g className="pointer-events-none">
+          <rect
+            x={-def.width / 2 - 12}
+            y={-def.height / 2 - 12}
+            width={def.width + 24}
+            height={def.height + 24}
+            rx="6"
+            fill="#eff6ff"
+            fillOpacity="0.8"
+            stroke="#2563eb"
+            strokeWidth="1.8"
+            strokeDasharray="4 4"
+          />
+          {/* Âncoras nos 4 cantos */}
+          <rect x={-def.width / 2 - 15} y={-def.height / 2 - 15} width="6" height="6" rx="1" fill="#2563eb" />
+          <rect x={def.width / 2 + 9} y={-def.height / 2 - 15} width="6" height="6" rx="1" fill="#2563eb" />
+          <rect x={-def.width / 2 - 15} y={def.height / 2 + 9} width="6" height="6" rx="1" fill="#2563eb" />
+          <rect x={def.width / 2 + 9} y={def.height / 2 + 9} width="6" height="6" rx="1" fill="#2563eb" />
+        </g>
       )}
 
       {/* Desenho do símbolo */}
       {renderInnerSymbol()}
 
-      {/* Rótulo (Label ex: R1) e Valor (ex: 10k) - oculta para nó de junção, GND e TEXT */}
+      {/* Rótulo (Label ex: R1) e Valor (ex: 10 kΩ ±1%) - oculta para nó de junção, GND e TEXT */}
       {component.type !== 'JUNCTION' && component.type !== 'GND' && component.type !== 'TEXT' && (() => {
         const isVertical = component.rotation % 180 !== 0;
+        const displayValue = [
+          component.value,
+          component.tolerance ? component.tolerance : '',
+          component.frequency ? `, ${component.frequency}` : '',
+        ]
+          .filter(Boolean)
+          .join(' ');
+
         const hasValue = Boolean(
-          component.value &&
+          displayValue &&
           component.value !== component.label &&
           component.type !== 'PIN_TERMINAL'
         );
@@ -227,14 +242,14 @@ export const ComponentSymbol: React.FC<ComponentSymbolProps> = ({
               transform={`rotate(${-component.rotation}) scale(${
                 component.mirrored ? -1 : 1
               }, 1)`}
-              className="pointer-events-none select-none"
+              className="pointer-events-none select-none font-sans"
             >
               <text
                 x={hasValue ? -def.height / 2 - 8 : 0}
                 y={hasValue ? 4 : -def.width / 2 - 8}
                 textAnchor={hasValue ? 'end' : 'middle'}
-                fontSize="12"
-                fontWeight="bold"
+                fontSize="12.5"
+                fontWeight="700"
                 fill="#0f172a"
               >
                 {component.label}
@@ -245,11 +260,11 @@ export const ComponentSymbol: React.FC<ComponentSymbolProps> = ({
                   y="4"
                   textAnchor="start"
                   fontSize="11"
-                  fontWeight="semibold"
-                  fill="#334155"
+                  fontWeight="600"
+                  fill="#2563eb"
+                  className="font-mono"
                 >
-                  {component.value}
-                  {component.frequency ? `, ${component.frequency}` : ''}
+                  {displayValue}
                 </text>
               )}
             </g>
@@ -261,14 +276,14 @@ export const ComponentSymbol: React.FC<ComponentSymbolProps> = ({
             transform={`rotate(${-component.rotation}) scale(${
               component.mirrored ? -1 : 1
             }, 1)`}
-            className="pointer-events-none select-none"
+            className="pointer-events-none select-none font-sans"
           >
             <text
               x="0"
-              y={-def.height / 2 - 6}
+              y={-def.height / 2 - 7}
               textAnchor="middle"
-              fontSize="12"
-              fontWeight="bold"
+              fontSize="12.5"
+              fontWeight="700"
               fill="#0f172a"
             >
               {component.label}
@@ -276,14 +291,14 @@ export const ComponentSymbol: React.FC<ComponentSymbolProps> = ({
             {hasValue && (
               <text
                 x="0"
-                y={def.height / 2 + 16}
+                y={def.height / 2 + 18}
                 textAnchor="middle"
                 fontSize="11"
-                fontWeight="semibold"
-                fill="#334155"
+                fontWeight="600"
+                fill="#2563eb"
+                className="font-mono"
               >
-                {component.value}
-                {component.frequency ? `, ${component.frequency}` : ''}
+                {displayValue}
               </text>
             )}
           </g>

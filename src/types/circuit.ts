@@ -98,6 +98,8 @@ export interface CircuitComponent {
   inputsCount?: number; // Para portas lógicas (2, 3 ou 4)
   color?: string;       // Para LEDs, por exemplo ('red', 'green', 'blue')
   frequency?: string;   // Para fontes AC (ex: '60Hz')
+  tolerance?: string;   // ex: '±1%', '±5%', '±10%'
+  powerRating?: string; // ex: '0.25 W (1/4 W)'
 }
 
 export interface WireConnection {

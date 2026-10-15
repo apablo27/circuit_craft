@@ -262,6 +262,14 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({ onOpenPreset
           );
         })}
       </div>
+
+      {/* Rodapé Técnico de Normas de Simbologia */}
+      <div className="p-3 bg-white border-t border-slate-200 text-[11px] font-mono text-slate-500 flex items-center justify-between shrink-0">
+        <span>Norma: IEC-60617</span>
+        <span className="text-blue-600 hover:underline cursor-pointer font-medium">
+          Trocar IEEE
+        </span>
+      </div>
     </aside>
   );
 };

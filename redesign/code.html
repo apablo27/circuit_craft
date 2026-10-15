@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+
+<html class="light" lang="pt-BR"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;family=JetBrains+Mono:wght@100..900&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"outline":"#737686","on-secondary":"#ffffff","surface-container-high":"#e2e7ff","secondary-fixed-dim":"#4edea3","inverse-surface":"#283044","on-primary-fixed":"#00174b","on-secondary-container":"#00714d","background":"#faf8ff","on-error":"#ffffff","secondary-fixed":"#6ffbbe","surface-dim":"#d2d9f4","tertiary-container":"#996100","surface-tint":"#0053db","tertiary":"#784b00","primary-fixed-dim":"#b4c5ff","on-secondary-fixed-variant":"#005236","surface-container-highest":"#dae2fd","on-tertiary-fixed":"#2a1700","on-primary":"#ffffff","on-primary-container":"#eeefff","secondary":"#006c49","on-secondary-fixed":"#002113","surface-container-low":"#f2f3ff","secondary-container":"#6cf8bb","inverse-primary":"#b4c5ff","error":"#ba1a1a","error-container":"#ffdad6","on-primary-fixed-variant":"#003ea8","outline-variant":"#c3c6d7","on-tertiary-fixed-variant":"#653e00","surface-container-lowest":"#ffffff","tertiary-fixed-dim":"#ffb95f","surface":"#faf8ff","on-surface-variant":"#434655","on-tertiary-container":"#ffeedd","on-background":"#131b2e","surface-variant":"#dae2fd","primary-fixed":"#dbe1ff","surface-bright":"#faf8ff","on-surface":"#131b2e","tertiary-fixed":"#ffddb8","on-error-container":"#93000a","on-tertiary":"#ffffff","inverse-on-surface":"#eef0ff","primary-container":"#2563eb","primary":"#004ac6","surface-container":"#eaedff"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"space-xs":"0.25rem","space-xl":"1.5rem","gutter":"0.75rem","space-sm":"0.5rem","space-lg":"1rem","space-md":"0.75rem","margin":"1rem"},"fontFamily":{"headline-sm":["Geist"],"headline-md":["Geist"],"label-mono-xs":["JetBrains Mono"],"code-snippet":["JetBrains Mono"],"body-md":["Geist"],"body-sm":["Geist"],"label-mono":["JetBrains Mono"],"headline-lg":["Geist"]},"fontSize":{"headline-sm":["0.875rem",{"lineHeight":"1.25rem","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-md":["1.25rem",{"lineHeight":"1.75rem","letterSpacing":"-0.015em","fontWeight":"600"}],"label-mono-xs":["0.6875rem",{"lineHeight":"0.875rem","fontWeight":"500"}],"code-snippet":["0.75rem",{"lineHeight":"1.125rem","fontWeight":"500"}],"body-md":["0.8125rem",{"lineHeight":"1.25rem","fontWeight":"400"}],"body-sm":["0.75rem",{"lineHeight":"1.125rem","fontWeight":"400"}],"label-mono":["0.8125rem",{"lineHeight":"1.125rem","fontWeight":"500"}],"headline-lg":["1.5rem",{"lineHeight":"2rem","letterSpacing":"-0.02em","fontWeight":"600"}]}}}};</script></head><body class="bg-slate-50 font-body-md text-slate-800 select-none antialiased"><header class="fixed top-0 left-0 right-0 h-14 bg-white border-b border-slate-200 z-40 shadow-sm"><div class="w-full h-full px-space-xl flex items-center justify-between gap-space-lg"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-sm"><div class="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-sm"><span class="material-symbols-outlined text-[18px]">schema</span></div><span class="font-headline-sm text-headline-sm tracking-tight text-slate-900 font-bold">CircuitCraft</span><span class="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-label-mono-xs font-label-mono-xs border border-blue-200 font-semibold uppercase">Didático / Pro</span></div><div class="h-4 w-px bg-slate-200"></div><nav class="flex items-center gap-space-md" data-active-classes="text-blue-600 font-bold"><a aria-current="page" class="transition-colors text-blue-600 font-semibold text-body-sm flex items-center gap-1" data-path="workbench" href="#"><span class="material-symbols-outlined text-[16px]">draw</span>Bancada</a><a class="text-body-sm font-body-sm text-slate-600 hover:text-slate-900 transition-colors" data-path="circuit-templates" href="#">Modelos Prontos</a><a class="text-body-sm font-body-sm text-slate-600 hover:text-slate-900 transition-colors" data-path="simulation-studio" href="#">Simulação SPICE</a><a class="text-body-sm font-body-sm text-slate-600 hover:text-slate-900 transition-colors" data-path="tikz-export" href="#">Exportar LaTeX/CircuiTikZ</a><a class="text-body-sm font-body-sm text-slate-600 hover:text-slate-900 transition-colors" data-path="project-settings" href="#">Configurações</a></nav></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-1.5 text-body-sm font-body-sm text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span><span class="text-[12px] font-medium">Sincronizado</span></div><button class="flex items-center gap-space-xs px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-body-sm font-body-sm transition-colors border border-slate-200" type="button"><span class="material-symbols-outlined text-[16px] text-slate-600">co_present</span><span>Modo Aula</span></button><button class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors border border-slate-200" title="Alternar Modo Escuro" type="button"><span class="material-symbols-outlined text-[18px]">light_mode</span></button><div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white ring-2 ring-blue-100 shadow-sm"><span class="material-symbols-outlined text-[17px]">person</span></div></div></div></header><aside class="fixed left-0 top-14 bottom-7 w-64 bg-slate-50 border-r border-slate-200 z-30 flex flex-col justify-between shadow-[2px_0_8px_rgba(0,0,0,0.03)]"><div class="flex flex-col h-full"><div class="p-3 flex items-center justify-between border-b border-slate-200 bg-white"><div class="flex items-center gap-2 text-slate-800"><span class="material-symbols-outlined text-blue-600 text-[18px]">category</span><span class="font-headline-sm text-headline-sm uppercase tracking-wide text-slate-900 text-[12px] font-bold">Componentes</span></div><button class="w-6 h-6 rounded flex items-center justify-center text-slate-500 hover:bg-slate-100 hover:text-slate-800" type="button"><span class="material-symbols-outlined text-[16px]">first_page</span></button></div><div class="p-2.5 bg-slate-50 border-b border-slate-200"><div class="flex items-center px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 text-body-sm text-slate-600 gap-2 shadow-xs focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500"><span class="material-symbols-outlined text-[16px] text-slate-400">search</span><input class="bg-transparent text-slate-800 placeholder:text-slate-400 text-body-sm focus:outline-none w-full" placeholder="Buscar símbolo (R, C, NPN)..." type="text"/></div></div><div class="flex-1 overflow-y-auto p-2.5 flex flex-col gap-3"><div class="text-[10px] font-label-mono-xs text-slate-500 uppercase tracking-wider font-semibold px-1">Passivos Fundamentais</div><div class="grid grid-cols-2 gap-2"><div class="p-2 bg-white hover:bg-blue-50/50 border border-slate-200 hover:border-blue-300 rounded-lg cursor-pointer transition-all flex flex-col items-center gap-1 shadow-xs group"><svg class="w-10 h-7 text-slate-700 group-hover:text-blue-600" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 50 20"><path d="M2 10 L10 10 L14 4 L20 16 L26 4 L32 16 L36 10 L48 10"></path></svg><span class="text-label-mono-xs font-medium text-slate-700 group-hover:text-blue-700">Resistor</span></div><div class="p-2 bg-white hover:bg-blue-50/50 border border-slate-200 hover:border-blue-300 rounded-lg cursor-pointer transition-all flex flex-col items-center gap-1 shadow-xs group"><svg class="w-10 h-7 text-slate-700 group-hover:text-blue-600" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.8" viewbox="0 0 50 20"><line x1="2" x2="21" y1="10" y2="10"></line><line x1="21" x2="21" y1="3" y2="17"></line><line x1="29" x2="29" y1="3" y2="17"></line><line x1="29" x2="48" y1="10" y2="10"></line></svg><span class="text-label-mono-xs font-medium text-slate-700 group-hover:text-blue-700">Capacitor</span></div></div><div class="text-[10px] font-label-mono-xs text-slate-500 uppercase tracking-wider font-semibold px-1 pt-1">Fontes &amp; Terra</div><div class="grid grid-cols-2 gap-2"><div class="p-2 bg-white hover:bg-blue-50/50 border border-slate-200 hover:border-blue-300 rounded-lg cursor-pointer transition-all flex flex-col items-center gap-1 shadow-xs group"><svg class="w-10 h-7 text-slate-700 group-hover:text-blue-600" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.8" viewbox="0 0 50 22"><line stroke-width="2" x1="25" x2="25" y1="18" y2="8"></line><polygon fill="currentColor" points="25,3 19,10 31,10" stroke="none"></polygon><circle cx="25" cy="18" fill="white" r="2.5" stroke="currentColor" stroke-width="1.5"></circle></svg><span class="text-label-mono-xs font-medium text-slate-700 group-hover:text-blue-700">VCC / DC</span></div><div class="p-2 bg-white hover:bg-blue-50/50 border border-slate-200 hover:border-blue-300 rounded-lg cursor-pointer transition-all flex flex-col items-center gap-1 shadow-xs group"><svg class="w-10 h-7 text-slate-700 group-hover:text-blue-600" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.8" viewbox="0 0 50 20"><line x1="25" x2="25" y1="2" y2="10"></line><line stroke-width="2" x1="14" x2="36" y1="10" y2="10"></line><line stroke-width="1.8" x1="18" x2="32" y1="14" y2="14"></line><line stroke-width="1.5" x1="22" x2="28" y1="18" y2="18"></line></svg><span class="text-label-mono-xs font-medium text-slate-700 group-hover:text-blue-700">GND (Terra)</span></div></div><div class="text-[10px] font-label-mono-xs text-slate-500 uppercase tracking-wider font-semibold px-1 pt-1">Semicondutores</div><div class="grid grid-cols-2 gap-2"><div class="p-2 bg-white hover:bg-blue-50/50 border border-slate-200 hover:border-blue-300 rounded-lg cursor-pointer transition-all flex flex-col items-center gap-1 shadow-xs group"><svg class="w-10 h-7 text-slate-700 group-hover:text-blue-600" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 50 22"><line stroke-linecap="round" x1="4" x2="18" y1="11" y2="11"></line><polygon fill="currentColor" points="18,5 18,17 29,11"></polygon><line stroke-linecap="round" x1="29" x2="29" y1="4" y2="18"></line><line stroke-linecap="round" x1="29" x2="46" y1="11" y2="11"></line><path d="M24 4 L28 1" stroke-linecap="round"></path><path d="M28 6 L32 3" stroke-linecap="round"></path></svg><span class="text-label-mono-xs font-medium text-slate-700 group-hover:text-blue-700">LED / Diodo</span></div><div class="p-2 bg-white hover:bg-blue-50/50 border border-slate-200 hover:border-blue-300 rounded-lg cursor-pointer transition-all flex flex-col items-center gap-1 shadow-xs group"><svg class="w-10 h-7 text-slate-700 group-hover:text-blue-600" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.8" viewbox="0 0 50 22"><line x1="4" x2="20" y1="11" y2="11"></line><line stroke-width="2.5" x1="20" x2="20" y1="3" y2="19"></line><line x1="20" x2="35" y1="6" y2="2"></line><line x1="20" x2="35" y1="16" y2="20"></line><polygon fill="currentColor" points="33,19 26,17 31,14" stroke="none"></polygon></svg><span class="text-label-mono-xs font-medium text-slate-700 group-hover:text-blue-700">BJT NPN</span></div></div><div class="text-[10px] font-label-mono-xs text-slate-500 uppercase tracking-wider font-semibold px-1 pt-1">Lógica &amp; Medição</div><div class="grid grid-cols-2 gap-2"><div class="p-2 bg-white hover:bg-blue-50/50 border border-slate-200 hover:border-blue-300 rounded-lg cursor-pointer transition-all flex flex-col items-center gap-1 shadow-xs group"><svg class="w-10 h-7 text-slate-700 group-hover:text-blue-600" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.8" viewbox="0 0 50 20"><line x1="2" x2="14" y1="6" y2="6"></line><line x1="2" x2="14" y1="14" y2="14"></line><path d="M14 3 L24 3 C30 3 34 6.5 34 10 C34 13.5 30 17 24 17 L14 17 Z"></path><circle cx="37" cy="10" fill="white" r="2" stroke="currentColor"></circle><line x1="39" x2="48" y1="10" y2="10"></line></svg><span class="text-label-mono-xs font-medium text-slate-700 group-hover:text-blue-700">Porta NAND</span></div><div class="p-2 bg-white hover:bg-blue-50/50 border border-slate-200 hover:border-blue-300 rounded-lg cursor-pointer transition-all flex flex-col items-center gap-1 shadow-xs group"><svg class="w-10 h-7 text-slate-700 group-hover:text-blue-600" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.8" viewbox="0 0 50 20"><rect height="16" rx="2" width="28" x="11" y="2"></rect><path d="M16 10 Q20 5 25 10 T34 10"></path></svg><span class="text-label-mono-xs font-medium text-slate-700 group-hover:text-blue-700">Osciloscópio</span></div></div></div><div class="p-3 bg-white border-t border-slate-200 text-label-mono-xs font-label-mono-xs text-slate-500 flex items-center justify-between"><span>Norma: IEC-60617</span><span class="text-blue-600 hover:underline cursor-pointer font-medium">Trocar IEEE</span></div></div></aside><div class="pl-64 pr-0"><main class="relative pt-14 pb-7 min-h-screen bg-slate-100"><div class="flex flex-col w-full h-[calc(100vh-5.25rem)] overflow-hidden select-none">
+<!-- Interactive Workbench Matrix Container -->
+<div class="relative w-full h-full flex flex-col overflow-hidden bg-white">
+<!-- Secondary Technical Action Subheader (Simulation status & Academic Exports) -->
+<div class="h-10 px-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between z-20">
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-1.5 text-blue-700 font-headline-sm text-[12px] uppercase tracking-wider font-bold">
+<span class="material-symbols-outlined text-[17px]">terminal</span>
+<span>Malha #01: Circuito Polarização Direta LED</span>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-label-mono-xs text-[11px] font-semibold border border-emerald-300">
+          KCL &amp; KVL OK
+        </span>
+<div class="hidden lg:flex items-center gap-2 text-slate-500 font-label-mono-xs text-[11px]">
+<span>Freq: 0.00 Hz (DC)</span>
+<span>•</span>
+<span>Resolução Solver: 10µs</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="h-7 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-label-mono text-[12px] font-medium flex items-center gap-1.5 shadow-sm transition-colors" id="btn-run-sim" type="button">
+<span class="material-symbols-outlined text-[16px]">play_arrow</span>
+<span>Executar Simulação DC</span>
+</button>
+<button class="h-7 px-3 rounded-lg bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-label-mono text-[12px] font-medium flex items-center gap-1.5 transition-colors shadow-xs" id="btn-export-academic" type="button">
+<span class="material-symbols-outlined text-[16px] text-red-600">picture_as_pdf</span>
+<span>Exportar LaTeX/TikZ</span>
+</button>
+</div>
+</div>
+<!-- Central Floating Toolbar Dock -->
+<div class="absolute top-12 left-1/2 -translate-x-1/2 z-30 bg-white/95 backdrop-blur-md px-1.5 py-1 rounded-xl shadow-lg border border-slate-200/90 flex items-center gap-1"><button class="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-600 text-white shadow-xs" title="Selecionar (V)"><span class="material-symbols-outlined text-[18px]">near_me</span></button><button class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors" title="Inserir Fio Inteligente (W)"><span class="material-symbols-outlined text-[18px]">timeline</span></button><button class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors" title="Mover Tela (H)"><span class="material-symbols-outlined text-[18px]">pan_tool</span></button><div class="h-4 w-px bg-slate-200 mx-0.5"></div><button class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors" title="Ponta de Prova Voltímetro"><span class="material-symbols-outlined text-[18px]">colorize</span></button><button class="w-8 h-8 rounded-lg flex items-center justify-center text-blue-700 bg-blue-50 border border-blue-200" title="Alternar Grade 8px/16px"><span class="material-symbols-outlined text-[18px]">grid_4x4</span></button><div class="h-4 w-px bg-slate-200 mx-0.5"></div><button class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-600 hover:bg-slate-100 hover:text-slate-900" title="Zoom +"><span class="material-symbols-outlined text-[16px]">zoom_in</span></button><span class="text-label-mono-xs font-label-mono-xs px-1 text-slate-600 font-semibold">100%</span><button class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-600 hover:bg-slate-100 hover:text-slate-900" title="Zoom -"><span class="material-symbols-outlined text-[16px]">zoom_out</span></button></div>
+<!-- Active Canvas Workspace with Dotted Coordinate Grid -->
+<div class="relative flex-1 w-full h-full overflow-hidden cursor-crosshair bg-white" id="schematic-viewport">
+<!-- High-Precision Dot-Grid Pattern Canvas Layer -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<pattern height="20" id="grid-dots-sm-light" patternunits="userSpaceOnUse" width="20">
+<circle cx="10" cy="10" fill="#94a3b8" opacity="0.45" r="0.8"></circle>
+</pattern>
+<pattern height="100" id="grid-dots-major-light" patternunits="userSpaceOnUse" width="100">
+<rect fill="url(#grid-dots-sm-light)" height="100" width="100"></rect>
+<circle cx="50" cy="50" fill="#3b82f6" opacity="0.35" r="1.4"></circle>
+</pattern>
+</defs>
+<rect fill="url(#grid-dots-major-light)" height="100%" width="100%"></rect>
+</svg>
+<!-- Active Schematic Drawing Layer (Orthogonal Schematics & Symbols) -->
+<svg class="absolute inset-0 w-full h-full" id="schematic-canvas" viewbox="0 0 1200 680" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<marker id="current-arrow" markerheight="6" markerwidth="6" orient="auto-start-reverse" refx="5" refy="5" viewbox="0 0 10 10">
+<path d="M 0 1 L 9 5 L 0 9 z" fill="#059669"></path>
+</marker>
+<filter height="140%" id="glow-led-light" width="140%" x="-20%" y="-20%">
+<fegaussianblur result="glow" stddeviation="2"></fegaussianblur>
+<fecomposite in="SourceGraphic" in2="glow" operator="over"></fecomposite>
+</filter>
+</defs>
+<!-- Coordinate Guide Lines (Faint reference axes) -->
+<line stroke="#e2e8f0" stroke-dasharray="3,4" stroke-width="1" x1="120" x2="120" y1="0" y2="680"></line>
+<line stroke="#e2e8f0" stroke-dasharray="3,4" stroke-width="1" x1="0" x2="1200" y1="320" y2="320"></line>
+<!-- ================= CONDUCTORS & WIRING (Smart Orthogonal Net) ================= -->
+<!-- Bus: VCC to Resistor R1 -->
+<path d="M 200 320 L 300 320" fill="none" stroke="#1e293b" stroke-linecap="round" stroke-width="2.5"></path>
+<!-- Conductor between R1 and LED1 -->
+<path d="M 420 320 L 560 320" fill="none" stroke="#1e293b" stroke-linecap="round" stroke-width="2.5"></path>
+<!-- Conductor from LED1 to Ground Bus -->
+<path d="M 640 320 L 760 320 L 760 360" fill="none" stroke="#1e293b" stroke-linecap="round" stroke-width="2.5"></path>
+<!-- Dynamic Simulated Current Animation Flow Marker (Animated dashed line overlay) -->
+<path class="opacity-90" d="M 200 320 L 760 320" fill="none" stroke="#059669" stroke-dasharray="5,8" stroke-width="1.6">
+<animate attributename="stroke-dashoffset" dur="1.2s" from="26" repeatcount="indefinite" to="0"></animate>
+</path>
+<!-- ================= COMPONENT 1: VCC SOURCE (+5V Rail Node) ================= -->
+<g class="cursor-pointer group" id="comp-vcc">
+<line stroke="#1e293b" stroke-linecap="round" stroke-width="2.5" x1="200" x2="200" y1="320" y2="280"></line>
+<polygon class="group-hover:fill-blue-700 transition-colors" fill="#2563eb" points="200,260 188,282 212,282"></polygon>
+<circle class="group-hover:scale-125 transition-transform origin-center" cx="200" cy="320" fill="#ffffff" r="4.5" stroke="#2563eb" stroke-width="2.2"></circle>
+<text fill="#0f172a" font-family="Geist" font-size="13" font-weight="700" text-anchor="middle" x="200" y="246">VCC</text>
+<text fill="#059669" font-family="JetBrains Mono" font-size="11" font-weight="600" text-anchor="middle" x="200" y="259">+5.00 V</text>
+</g>
+<!-- ================= COMPONENT 2: RESISTOR R1 (SELECTED ELEMENT - HIGHLIGHTED) ================= -->
+<g class="cursor-pointer group" id="comp-r1">
+<!-- Selection bounding box (Tinkercad style active focus) -->
+<rect class="transition-all" fill="#eff6ff" fill-opacity="0.8" height="74" rx="6" stroke="#2563eb" stroke-dasharray="4,4" stroke-width="1.8" width="144" x="288" y="283"></rect>
+<!-- Corner resize/connection control anchors -->
+<rect fill="#2563eb" height="6" rx="1" width="6" x="285" y="280"></rect>
+<rect fill="#2563eb" height="6" rx="1" width="6" x="429" y="280"></rect>
+<rect fill="#2563eb" height="6" rx="1" width="6" x="285" y="354"></rect>
+<rect fill="#2563eb" height="6" rx="1" width="6" x="429" y="354"></rect>
+<!-- Terminal Pins -->
+<circle cx="300" cy="320" fill="#ffffff" r="4.5" stroke="#2563eb" stroke-width="2"></circle>
+<circle cx="420" cy="320" fill="#ffffff" r="4.5" stroke="#2563eb" stroke-width="2"></circle>
+<!-- Resistor Zigzag Waveform (Standard ANSI/IEEE) -->
+<path class="group-hover:stroke-blue-600 transition-colors" d="M 300 320 L 320 320 L 330 302 L 345 338 L 360 302 L 375 338 L 390 302 L 400 320 L 420 320" fill="none" stroke="#0f172a" stroke-linejoin="round" stroke-width="2.6"></path>
+<!-- Component Identifiers -->
+<text fill="#0f172a" font-family="Geist" font-size="13" font-weight="700" text-anchor="middle" x="360" y="296">R1</text>
+<text fill="#2563eb" font-family="JetBrains Mono" font-size="11" font-weight="600" text-anchor="middle" x="360" y="352">10 kΩ ±1%</text>
+<text fill="#64748b" font-family="JetBrains Mono" font-size="9.5" text-anchor="middle" x="360" y="365">Pd = 1.01 mW</text>
+</g>
+<!-- ================= JUNCTION / SOLDER NODE N1 ================= -->
+<g id="junction-n1">
+<circle cx="490" cy="320" fill="#0f172a" r="4"></circle>
+<text fill="#64748b" font-family="JetBrains Mono" font-size="10" font-weight="500" text-anchor="middle" x="490" y="308">Nó A</text>
+</g>
+<!-- ================= COMPONENT 3: LED1 ================= -->
+<g class="cursor-pointer group" id="comp-led1">
+<!-- Hover hull -->
+<rect class="group-hover:fill-slate-100 transition-all" fill="transparent" height="80" rx="4" width="100" x="550" y="280"></rect>
+<!-- Terminals -->
+<circle cx="560" cy="320" fill="#ffffff" r="4.5" stroke="#1e293b" stroke-width="2"></circle>
+<circle cx="640" cy="320" fill="#ffffff" r="4.5" stroke="#1e293b" stroke-width="2"></circle>
+<!-- Anode input lead -->
+<line stroke="#1e293b" stroke-width="2.5" x1="560" x2="580" y1="320" y2="320"></line>
+<!-- Diode Triangle (Anode -> Cathode) -->
+<polygon fill="#dc2626" points="580,302 580,338 614,320" stroke="#991b1b" stroke-width="2"></polygon>
+<!-- Cathode Bar Line -->
+<line stroke="#0f172a" stroke-linecap="round" stroke-width="2.5" x1="614" x2="614" y1="300" y2="340"></line>
+<!-- Cathode output lead -->
+<line stroke="#1e293b" stroke-width="2.5" x1="614" x2="640" y1="320" y2="320"></line>
+<!-- Photon Emission Arrows -->
+<line stroke="#ef4444" stroke-linecap="round" stroke-width="1.8" x1="598" x2="612" y1="298" y2="280"></line>
+<polygon fill="#ef4444" points="616,276 607,280 612,287"></polygon>
+<line stroke="#ef4444" stroke-linecap="round" stroke-width="1.8" x1="608" x2="622" y1="302" y2="284"></line>
+<polygon fill="#ef4444" points="626,280 617,284 622,291"></polygon>
+<!-- Component Labels -->
+<text fill="#0f172a" font-family="Geist" font-size="13" font-weight="700" text-anchor="middle" x="600" y="268">LED1</text>
+<text fill="#dc2626" font-family="JetBrains Mono" font-size="11" font-weight="600" text-anchor="middle" x="600" y="354">Vermelho (635nm)</text>
+<text fill="#059669" font-family="JetBrains Mono" font-size="10" font-weight="500" text-anchor="middle" x="600" y="367">If = 0.318 mA</text>
+</g>
+<!-- ================= COMPONENT 4: GROUND GND ================= -->
+<g class="cursor-pointer group" id="comp-gnd">
+<line stroke="#1e293b" stroke-linecap="round" stroke-width="2.5" x1="760" x2="760" y1="320" y2="370"></line>
+<line class="group-hover:stroke-blue-600" stroke="#0f172a" stroke-linecap="round" stroke-width="3" x1="742" x2="778" y1="370" y2="370"></line>
+<line class="group-hover:stroke-blue-600" stroke="#0f172a" stroke-linecap="round" stroke-width="2.2" x1="748" x2="772" y1="378" y2="378"></line>
+<line class="group-hover:stroke-blue-600" stroke="#0f172a" stroke-linecap="round" stroke-width="1.6" x1="754" x2="766" y1="386" y2="386"></line>
+<circle cx="760" cy="320" fill="#ffffff" r="4.5" stroke="#1e293b" stroke-width="2"></circle>
+<text fill="#475569" font-family="Geist" font-size="11" font-weight="600" x="790" y="375">GND</text>
+<text fill="#64748b" font-family="JetBrains Mono" font-size="10" x="790" y="388">0.00 V</text>
+</g>
+<!-- Floating Virtual Multimeter Probe Overlay -->
+<path d="M 490 320 C 490 220, 520 200, 535 190" fill="none" stroke="#059669" stroke-dasharray="3,3" stroke-width="1.8"></path>
+<circle cx="490" cy="320" fill="#ffffff" r="5" stroke="#059669" stroke-width="2"></circle>
+<foreignobject height="105" width="220" x="515" y="105">
+<div class="bg-white/95 backdrop-blur-md p-2.5 rounded-lg shadow-md border border-slate-200 text-slate-800">
+<div class="flex items-center justify-between pb-1 border-b border-slate-200">
+<div class="flex items-center gap-1.5 text-emerald-700">
+<span class="material-symbols-outlined text-[14px]">electric_meter</span>
+<span class="font-label-mono-xs text-[10px] font-bold uppercase tracking-wider">Sonda Ativa [P1]</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+</div>
+<div class="mt-1.5 grid grid-cols-2 gap-x-2 gap-y-0.5 text-label-mono-xs text-[10.5px]">
+<span class="text-slate-500">V(Nó Anodo):</span>
+<span class="text-right font-bold text-slate-900">1.821 V</span>
+<span class="text-slate-500">V_queda (R1):</span>
+<span class="text-right font-bold text-blue-600">3.179 V</span>
+<span class="text-slate-500">I_malha:</span>
+<span class="text-right font-bold text-emerald-600">317.9 µA</span>
+</div>
+</div>
+</foreignobject>
+</svg>
+<!-- TINKERCAD-STYLE FLOATING ATTRIBUTE INSPECTOR POPOVER (Positioned over R1) -->
+<div class="absolute top-16 right-8 md:top-20 md:right-12 z-30 w-80 bg-white rounded-xl shadow-2xl border border-slate-200/90 text-slate-800 animate-in fade-in zoom-in-95 duration-150">
+<!-- Popover Header -->
+<div class="flex items-center justify-between px-3.5 py-2.5 border-b border-slate-100 bg-gradient-to-r from-blue-50/70 to-white rounded-t-xl">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-md bg-blue-600 text-white flex items-center justify-center shadow-xs">
+<span class="material-symbols-outlined text-[15px]">tune</span>
+</div>
+<div class="flex items-baseline gap-1.5">
+<span class="font-semibold text-slate-900 text-[13px]">Resistor</span>
+<span class="text-[11px] font-label-mono-xs font-bold text-blue-700 bg-blue-100/70 px-1.5 py-0.2 rounded">R1</span>
+</div>
+</div>
+<!-- Quick Action Mini-Buttons (Rotate, Mirror, Delete, Close) -->
+<div class="flex items-center gap-0.5">
+<button class="w-6 h-6 rounded hover:bg-slate-100 text-slate-600 hover:text-slate-900 flex items-center justify-center transition-colors" title="Girar 90° (R)">
+<span class="material-symbols-outlined text-[15px]">rotate_right</span>
+</button>
+<button class="w-6 h-6 rounded hover:bg-slate-100 text-slate-600 hover:text-slate-900 flex items-center justify-center transition-colors" title="Espelhar Horizontal">
+<span class="material-symbols-outlined text-[15px]">flip</span>
+</button>
+<button class="w-6 h-6 rounded hover:bg-red-50 text-slate-400 hover:text-red-600 flex items-center justify-center transition-colors" title="Excluir (Del)">
+<span class="material-symbols-outlined text-[15px]">delete</span>
+</button>
+<div class="h-3.5 w-px bg-slate-200 mx-0.5"></div>
+<button class="w-6 h-6 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors" title="Fechar">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+</div>
+<!-- Popover Body Parameters -->
+<div class="p-3.5 flex flex-col gap-3">
+<!-- ID / Label -->
+<div class="flex items-center justify-between gap-2">
+<label class="text-[11px] font-medium text-slate-600 uppercase tracking-wider font-label-mono-xs">Identificador</label>
+<input class="w-24 px-2 py-1 text-right text-[12px] font-semibold bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:border-blue-500 focus:outline-none text-slate-900" type="text" value="R1"/>
+</div>
+<!-- Resistance Value & Unit -->
+<div class="flex flex-col gap-1">
+<label class="text-[11px] font-medium text-slate-600 uppercase tracking-wider font-label-mono-xs">Resistência Nominal</label>
+<div class="flex rounded-md shadow-xs border border-slate-200 focus-within:border-blue-500 overflow-hidden bg-white">
+<input class="w-full px-2.5 py-1.5 text-[13px] font-semibold text-slate-900 bg-white focus:outline-none" type="number" value="10"/>
+<select class="px-2 py-1.5 text-[12px] font-label-mono-xs font-semibold bg-slate-100 text-slate-700 border-l border-slate-200 focus:outline-none cursor-pointer">
+<option value="ohm">Ω</option>
+<option selected="" value="kohm">kΩ</option>
+<option value="mohm">MΩ</option>
+</select>
+</div>
+</div>
+<!-- Tolerance Chips -->
+<div class="flex flex-col gap-1.5">
+<label class="text-[11px] font-medium text-slate-600 uppercase tracking-wider font-label-mono-xs">Tolerância</label>
+<div class="grid grid-cols-3 gap-1.5 text-center">
+<button class="py-1 px-2 rounded-md border border-blue-600 bg-blue-50 text-blue-700 font-label-mono-xs text-[11px] font-bold shadow-xs">± 1%</button>
+<button class="py-1 px-2 rounded-md border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-label-mono-xs text-[11px] font-medium">± 5%</button>
+<button class="py-1 px-2 rounded-md border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-label-mono-xs text-[11px] font-medium">± 10%</button>
+</div>
+</div>
+<!-- Power Rating -->
+<div class="flex items-center justify-between text-body-sm py-1 border-t border-slate-100">
+<span class="text-[11px] text-slate-500 font-label-mono-xs uppercase">Potência Máx</span>
+<span class="text-[12px] font-label-mono-xs font-semibold text-slate-800 bg-slate-100 px-2 py-0.5 rounded">0.25 W (1/4 W)</span>
+</div>
+<!-- Quick TikZ / LaTeX Code Box -->
+<div class="flex flex-col gap-1 pt-1 border-t border-slate-100">
+<div class="flex items-center justify-between">
+<span class="text-[10px] font-label-mono-xs uppercase text-slate-500 font-semibold tracking-wider">Exportação CircuiTikZ</span>
+<button class="flex items-center gap-1 text-[10px] text-blue-600 hover:text-blue-800 font-medium" title="Copiar comando">
+<span class="material-symbols-outlined text-[13px]">content_copy</span>
+<span>Copiar</span>
+</button>
+</div>
+<pre class="px-2 py-1.5 bg-slate-900 text-emerald-400 rounded-md font-code-snippet text-[10.5px] overflow-x-auto leading-tight">\draw (0,0) to[R, l=$10\,\mathrm{k\Omega}$] (2,0);</pre>
+</div>
+</div>
+<!-- Popover Footer Status -->
+<div class="px-3.5 py-1.5 bg-slate-50 border-t border-slate-100 rounded-b-xl flex items-center justify-between text-[10.5px] font-label-mono-xs text-slate-500">
+<span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Conectado</span>
+<span>Nós: [VCC → Nó A]</span>
+</div>
+</div>
+<!-- Bottom Floating Smart Tip & Quick Mode HUD -->
+<div class="absolute bottom-4 left-6 z-20 flex items-center gap-space-md">
+<div class="bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-lg shadow-md border border-slate-200 flex items-center gap-2 text-body-sm text-slate-600">
+<div class="w-2 h-2 rounded-full bg-blue-600"></div>
+<span><strong class="text-slate-900">Dica de Roteamento:</strong> Clique em nós abertos para traçar fios em 90°. Pressione <kbd class="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-300 text-label-mono-xs text-slate-800 font-semibold">Espaço</kbd> para alternar ângulo.</span>
+</div>
+</div>
+<!-- Live Coordinates & Snap Resolution Readout -->
+<div class="absolute bottom-4 right-6 z-20 flex items-center gap-1.5 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-lg text-label-mono-xs text-slate-500 border border-slate-200 shadow-md">
+<span class="material-symbols-outlined text-[14px] text-blue-600">filter_center_focus</span>
+<span>Grid: Snap 10px</span>
+<span>•</span>
+<span id="canvas-coords">X: 560 Y: 300</span>
+</div>
+</div>
+</div>
+<!-- Interactive Logic Hook -->
+<script>
+    (function () {
+      const viewport = document.getElementById('schematic-viewport');
+      const coordsDisplay = document.getElementById('canvas-coords');
+
+      if (viewport && coordsDisplay) {
+        viewport.addEventListener('mousemove', (e) => {
+          const rect = viewport.getBoundingClientRect();
+          const x = Math.round(e.clientX - rect.left);
+          const y = Math.round(e.clientY - rect.top);
+          coordsDisplay.textContent = `X: ${x} Y: ${y}`;
+        });
+      }
+
+      // Quick Component Switch Feedback
+      const ledComp = document.getElementById('comp-led1');
+      const r1Comp = document.getElementById('comp-r1');
+      const vccComp = document.getElementById('comp-vcc');
+
+      [ledComp, r1Comp, vccComp].forEach((el) => {
+        if (!el) return;
+        el.addEventListener('click', (evt) => {
+          evt.stopPropagation();
+          el.style.opacity = '0.7';
+          setTimeout(() => { el.style.opacity = '1'; }, 120);
+        });
+      });
+    })();
+  </script>
+</div></main></div><footer class="fixed bottom-0 left-0 right-0 h-7 bg-white text-slate-600 z-40 px-space-md flex items-center justify-between text-label-mono-xs font-label-mono-xs border-t border-slate-200"><div class="flex items-center gap-space-lg"><span>X: 120.00mm   Y: 45.00mm</span><div class="h-3 w-px bg-slate-200"></div><span>Snap: 2.54mm (0.1")</span><div class="h-3 w-px bg-slate-200"></div><span class="text-emerald-700 font-medium">Malha: Fechada (0 loops abertos)</span></div><div class="flex items-center gap-space-lg"><span>Atalho: [W] Inserir Fio • [R] Girar • [Espaço] Pan</span><div class="h-3 w-px bg-slate-200"></div><span class="text-blue-700 font-semibold">CircuitCraft Engine v2.4</span></div></footer></body></html>

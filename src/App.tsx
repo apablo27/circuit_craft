@@ -2,7 +2,6 @@ import React, { useRef, useState } from 'react';
 import { Header } from './components/Header/Header';
 import { ComponentPalette } from './components/Sidebar/ComponentPalette';
 import { CircuitCanvas } from './components/Canvas/CircuitCanvas';
-import { PropertiesPanel } from './components/Inspector/PropertiesPanel';
 import { ExportModal } from './components/ExportModal/ExportModal';
 import { CircuitikzModal } from './components/CircuitikzModal/CircuitikzModal';
 import { ShortcutsModal } from './components/ShortcutsModal/ShortcutsModal';
@@ -28,16 +27,13 @@ export const App: React.FC = () => {
       {/* Barra de Navegação Superior */}
       <Header
         onOpenExportModal={() => setIsExportModalOpen(true)}
-        onOpenCircuitikzModal={() => setIsCircuitikzModalOpen(true)}
         onOpenShortcutsModal={() => setIsShortcutsModalOpen(true)}
-        onOpenPresetModal={() => setIsPresetModalOpen(true)}
       />
 
-      {/* Área Principal: Sidebar | Canvas Interativo | Painel de Propriedades */}
+      {/* Área Principal: Sidebar de Componentes | Canvas Interativo Full Width */}
       <div className="flex flex-1 overflow-hidden">
         <ComponentPalette onOpenPresetModal={() => setIsPresetModalOpen(true)} />
         <CircuitCanvas svgRef={svgRef} />
-        <PropertiesPanel />
       </div>
 
       {/* Modal de Exportação de Imagem */}
