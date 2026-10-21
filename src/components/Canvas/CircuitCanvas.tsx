@@ -60,6 +60,14 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({ svgRef }) => {
   const [dragStartCoord, setDragStartCoord] = useState<Point | null>(null);
   const [dragGroupStarts, setDragGroupStarts] = useState<Record<string, Point>>({});
 
+  // Estado para arrastar rótulo (ID) ou valor/especificação no canvas
+  const [draggingText, setDraggingText] = useState<{
+    compId: string;
+    type: 'label' | 'value';
+    startMouse: Point;
+    initialOffset: Point;
+  } | null>(null);
+
   const [draggingWireHandle, setDraggingWireHandle] = useState<{
     wireId: string;
     handleIndex: number;
@@ -99,6 +107,7 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({ svgRef }) => {
           setBoxSelectCurrent(null);
           setIsPanning(false);
           setDraggingCompId(null);
+          setDraggingText(null);
         }
       } else if (key === ' ' || key === 'Spacebar' || key === 'Tab') {
         // Espaço ou Tab -> Alterna a direção da curva no segmento ativo do fio
@@ -208,6 +217,23 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({ svgRef }) => {
     const coords = getCanvasCoords(e);
     setMousePos(coords);
 
+    // Arrasto livre de texto (Identificador ou Valor)
+    if (draggingText) {
+      const dx = (e.clientX - draggingText.startMouse.x) / zoom;
+      const dy = (e.clientY - draggingText.startMouse.y) / zoom;
+      const newOffset = {
+        x: Math.round(draggingText.initialOffset.x + dx),
+        y: Math.round(draggingText.initialOffset.y + dy),
+      };
+
+      if (draggingText.type === 'label') {
+        updateComponent(draggingText.compId, { labelOffset: newOffset });
+      } else {
+        updateComponent(draggingText.compId, { valueOffset: newOffset });
+      }
+      return;
+    }
+
     if (boxSelectStart) {
       setBoxSelectCurrent(coords);
       return;
@@ -249,6 +275,10 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({ svgRef }) => {
   };
 
   const handleMouseUp = () => {
+    if (draggingText) {
+      setDraggingText(null);
+    }
+
     if (boxSelectStart && boxSelectCurrent) {
       const minX = Math.min(boxSelectStart.x, boxSelectCurrent.x);
       const maxX = Math.max(boxSelectStart.x, boxSelectCurrent.x);
@@ -307,6 +337,27 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({ svgRef }) => {
     setDragGroupStarts(initialPositions);
   };
 
+  // Início de arrasto do texto do identificador ou valor
+  const handleTextMouseDown = (compId: string, type: 'label' | 'value', e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!selectedComponentIds.includes(compId)) {
+      selectComponent(compId, false);
+    }
+
+    const comp = components.find((c) => c.id === compId);
+    const currentOffset =
+      type === 'label'
+        ? comp?.labelOffset || { x: 0, y: 0 }
+        : comp?.valueOffset || { x: 0, y: 0 };
+
+    setDraggingText({
+      compId,
+      type,
+      startMouse: { x: e.clientX, y: e.clientY },
+      initialOffset: { ...currentOffset },
+    });
+  };
+
   const handlePinClick = (compId: string, pinId: string) => {
     if (activeWireStart) {
       completeWire(compId, pinId);
@@ -332,7 +383,9 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({ svgRef }) => {
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       className={`flex-1 bg-white overflow-hidden relative select-none ${
-        isPanning
+        draggingText
+          ? 'cursor-grabbing'
+          : isPanning
           ? 'cursor-grabbing'
           : activeToolMode === 'pan'
           ? 'cursor-grab'
@@ -504,6 +557,7 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({ svgRef }) => {
                   component={comp}
                   isSelected={selectedComponentIds.includes(comp.id)}
                   onPinClick={(pinId) => handlePinClick(comp.id, pinId)}
+                  onTextMouseDown={handleTextMouseDown}
                   activePinId={
                     activeWireStart?.componentId === comp.id
                       ? activeWireStart.pinId
@@ -529,11 +583,11 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({ svgRef }) => {
           </g>
         </svg>
 
-        {/* Dica de Roteamento no rodapé esquerdo */}
+        {/* Dica de Roteamento e Manipulação no rodapé esquerdo */}
         <div className="absolute bottom-3 left-4 bg-white/95 backdrop-blur-xs border border-slate-200 shadow-xs px-3 py-1.5 rounded-lg text-xs text-slate-600 flex items-center gap-2 pointer-events-none select-none">
           <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
           <span>
-            <strong className="text-slate-900 font-semibold">Dica de Roteamento:</strong> Clique nos pinos para traçar fios em 90°. Pressione <kbd className="font-mono bg-slate-100 px-1 py-0.5 rounded border border-slate-200 text-slate-700">Espaço</kbd> para alternar curva.
+            <strong className="text-slate-900 font-semibold">Dica:</strong> Arraste os textos (IDs e Valores) livremente para desviar de fios. Clique nos pinos para traçar fios.
           </span>
         </div>
       </div>

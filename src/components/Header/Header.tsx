@@ -28,6 +28,10 @@ export const Header: React.FC<HeaderProps> = ({
     clearCanvas,
     loadProject,
     getProjectJson,
+    labelFontSize,
+    valueFontSize,
+    setLabelFontSize,
+    setValueFontSize,
   } = useCircuitStore();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -75,8 +79,8 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Centro: Ferramentas de Histórico e Limpeza */}
-      <div className="flex items-center gap-1 bg-slate-100/80 p-1.5 rounded-xl border border-slate-200">
+      {/* Centro: Ferramentas de Histórico, Limpeza e Ajuste Global de Fontes */}
+      <div className="flex items-center gap-1.5 bg-slate-100/80 p-1.5 rounded-xl border border-slate-200">
         <button
           onClick={undo}
           disabled={historyIndex < 0}
@@ -94,7 +98,7 @@ export const Header: React.FC<HeaderProps> = ({
           <RotateCw className="w-4 h-4" />
         </button>
 
-        <div className="w-px h-5 bg-slate-300 mx-1" />
+        <div className="w-px h-5 bg-slate-300 mx-0.5" />
 
         <button
           onClick={clearCanvas}
@@ -103,6 +107,62 @@ export const Header: React.FC<HeaderProps> = ({
         >
           <Trash2 className="w-4 h-4" />
         </button>
+
+        <div className="w-px h-5 bg-slate-300 mx-0.5" />
+
+        {/* Ajuste Global: Identificador (Label: R1, C1...) */}
+        <div className="flex items-center gap-1 bg-white px-2 py-1 rounded-lg border border-slate-200/90 shadow-2xs">
+          <span
+            className="text-[10.5px] font-mono font-bold text-slate-600 select-none mr-0.5"
+            title="Tamanho global da fonte dos Identificadores (R1, C1...)"
+          >
+            ID
+          </span>
+          <button
+            onClick={() => setLabelFontSize((prev) => Math.max(8, prev - 1))}
+            title="Diminuir fonte dos Identificadores (-1px)"
+            className="w-5 h-5 flex items-center justify-center rounded hover:bg-slate-100 text-slate-700 font-bold text-xs cursor-pointer select-none"
+          >
+            -
+          </button>
+          <span className="text-[11px] font-mono font-bold text-slate-900 min-w-4 text-center select-none">
+            {labelFontSize}
+          </span>
+          <button
+            onClick={() => setLabelFontSize((prev) => Math.min(26, prev + 1))}
+            title="Aumentar fonte dos Identificadores (+1px)"
+            className="w-5 h-5 flex items-center justify-center rounded hover:bg-slate-100 text-slate-700 font-bold text-xs cursor-pointer select-none"
+          >
+            +
+          </button>
+        </div>
+
+        {/* Ajuste Global: Valor / Especificação (10k, 100uF...) */}
+        <div className="flex items-center gap-1 bg-white px-2 py-1 rounded-lg border border-slate-200/90 shadow-2xs">
+          <span
+            className="text-[10.5px] font-mono font-bold text-blue-600 select-none mr-0.5"
+            title="Tamanho global da fonte das Especificações e Valores (10k, 100uF...)"
+          >
+            VAL
+          </span>
+          <button
+            onClick={() => setValueFontSize((prev) => Math.max(8, prev - 1))}
+            title="Diminuir fonte dos Valores (-1px)"
+            className="w-5 h-5 flex items-center justify-center rounded hover:bg-slate-100 text-slate-700 font-bold text-xs cursor-pointer select-none"
+          >
+            -
+          </button>
+          <span className="text-[11px] font-mono font-bold text-blue-700 min-w-4 text-center select-none">
+            {valueFontSize}
+          </span>
+          <button
+            onClick={() => setValueFontSize((prev) => Math.min(26, prev + 1))}
+            title="Aumentar fonte dos Valores (+1px)"
+            className="w-5 h-5 flex items-center justify-center rounded hover:bg-slate-100 text-slate-700 font-bold text-xs cursor-pointer select-none"
+          >
+            +
+          </button>
+        </div>
       </div>
 
       {/* Direita: Salvar, Abrir, Atalhos e Exportar */}

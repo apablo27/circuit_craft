@@ -4,6 +4,7 @@ import { COMPONENT_DEFINITIONS } from '../../utils/componentDefinitions';
 import { formatEngineeringValue } from '../../utils/engineeringUnits';
 import {
   RotateCw,
+  RotateCcw,
   FlipHorizontal,
   Trash2,
   X,
@@ -20,6 +21,7 @@ export const ComponentFloatingPopover: React.FC = () => {
     selectedComponentId,
     selectedWireId,
     updateComponent,
+    resetComponentTextOffsets,
     rotateComponent,
     mirrorComponent,
     removeComponent,
@@ -181,6 +183,11 @@ export const ComponentFloatingPopover: React.FC = () => {
       e.currentTarget.blur();
     }
   };
+
+  const hasCustomTextPosition = Boolean(
+    (selectedComponent.labelOffset && (selectedComponent.labelOffset.x !== 0 || selectedComponent.labelOffset.y !== 0)) ||
+    (selectedComponent.valueOffset && (selectedComponent.valueOffset.x !== 0 || selectedComponent.valueOffset.y !== 0))
+  );
 
   return (
     <div className="absolute top-16 right-6 z-30 w-80 bg-white rounded-xl shadow-2xl border border-slate-200/90 text-slate-800 animate-in fade-in zoom-in-95 duration-150 select-none">
@@ -366,6 +373,21 @@ export const ComponentFloatingPopover: React.FC = () => {
                 />
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Botão de Restaurar Posição dos Textos se tiver sido reposicionado */}
+        {hasCustomTextPosition && (
+          <div className="pt-2 border-t border-slate-100">
+            <button
+              type="button"
+              onClick={() => resetComponentTextOffsets(selectedComponent.id)}
+              className="w-full text-[11px] font-medium text-slate-600 hover:text-blue-600 bg-slate-50 hover:bg-blue-50 border border-slate-200 rounded-md py-1.5 px-2 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+              title="Retornar o identificador e especificação para as posições originais de fábrica"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
+              <span>Restaurar Posição Padrão dos Textos</span>
+            </button>
           </div>
         )}
       </div>

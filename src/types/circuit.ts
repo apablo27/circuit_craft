@@ -100,6 +100,8 @@ export interface CircuitComponent {
   frequency?: string;   // Para fontes AC (ex: '60Hz')
   tolerance?: string;   // ex: '±1%', '±5%', '±10%'
   powerRating?: string; // ex: '0.25 W (1/4 W)'
+  labelOffset?: Point;  // Deslocamento relativo X, Y do rótulo/identificador
+  valueOffset?: Point;  // Deslocamento relativo X, Y do valor/especificação
 }
 
 export interface WireConnection {

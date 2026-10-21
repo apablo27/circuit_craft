@@ -1,6 +1,15 @@
 import type { CircuitComponent, Wire } from '../types/circuit';
 import { COMPONENT_DEFINITIONS } from './componentDefinitions';
 import { getAbsolutePinPosition, snapToGrid, getWireWaypoints } from './wireUtils';
+import { useCircuitStore } from '../store/useCircuitStore';
+
+function getLatexFontSize(size: number): string {
+  if (size <= 9) return '\\tiny';
+  if (size <= 11) return '\\footnotesize';
+  if (size <= 13) return '\\small';
+  if (size <= 15) return '\\normalsize';
+  return '\\large';
+}
 
 /**
  * Formata valores para sintaxe matemática válida no LaTeX CircuiTikZ.
@@ -31,7 +40,8 @@ function formatValueForLatex(val: string): string {
  */
 export function exportToCircuitikz(
   components: CircuitComponent[],
-  wires: Wire[]
+  wires: Wire[],
+  options?: { labelFontSize?: number; valueFontSize?: number }
 ): string {
   if (components.length === 0) {
     return `% Circuito Vazio\n\\begin{circuitikz}[american]\n\\end{circuitikz}`;
@@ -77,6 +87,19 @@ export function exportToCircuitikz(
     const tx = ((x - minX) * scale).toFixed(2);
     const ty = (-(y - minY) * scale).toFixed(2); // Inverte eixo Y no TikZ
     return `${tx},${ty}`;
+  };
+
+    const storeState = typeof useCircuitStore !== 'undefined' ? useCircuitStore.getState?.() : undefined;
+  const labelSize = options?.labelFontSize ?? storeState?.labelFontSize ?? 12;
+  const valueSize = options?.valueFontSize ?? storeState?.valueFontSize ?? 11;
+  const labelFont = getLatexFontSize(labelSize);
+  const valueFont = getLatexFontSize(valueSize);
+
+  const getOffsetShift = (offset?: { x: number; y: number }): string => {
+    if (!offset || (offset.x === 0 && offset.y === 0)) return '';
+    const xcm = (offset.x * scale).toFixed(2);
+    const ycm = (-offset.y * scale).toFixed(2);
+    return `, xshift=${xcm}cm, yshift=${ycm}cm`;
   };
 
   const resolveCompPinAnchor = (comp: CircuitComponent, pinId: string, pt: { x: number; y: number }): string => {
@@ -354,24 +377,41 @@ export function exportToCircuitikz(
         const pos1 = `(${toTikZ(p1.x, p1.y)})`;
         const pos2 = `(${toTikZ(p2.x, p2.y)})`;
 
-        let labelOption = '';
         let valRaw = c.value || '';
         if (c.type === 'SOURCE_AC' && c.frequency) {
           valRaw = valRaw ? `${valRaw}, ${c.frequency}` : c.frequency;
         }
 
-        if (c.label && valRaw) {
-          const valFormatted = formatValueForLatex(valRaw);
-          labelOption = `l={\\shortstack{$${c.label}$\\\\ $${valFormatted}$}}`;
-        } else if (c.label) {
-          labelOption = `l={$${c.label}$}`;
-        } else if (valRaw) {
-          const valFormatted = formatValueForLatex(valRaw);
-          labelOption = `l={$${valFormatted}$}`;
-        }
+        const hasLabelOffset = Boolean(c.labelOffset && (c.labelOffset.x !== 0 || c.labelOffset.y !== 0));
+        const hasValueOffset = Boolean(c.valueOffset && (c.valueOffset.x !== 0 || c.valueOffset.y !== 0));
 
         lines.push(`  % Componente: ${c.label || def.name}${valRaw ? ` (${valRaw})` : ''}`);
-        lines.push(`  \\draw ${pos1} to[${tikzCode}${labelOption ? `, ${labelOption}` : ''}] ${pos2};`);
+
+        if (hasLabelOffset || hasValueOffset) {
+          const midPos = `(${toTikZ(c.x, c.y)})`;
+          lines.push(`  \\draw ${pos1} to[${tikzCode}] ${pos2};`);
+          if (c.label) {
+            const lShift = getOffsetShift(c.labelOffset);
+            lines.push(`  \\node[above, font=${labelFont}\\bfseries, fill=white, inner sep=1pt${lShift}] at ${midPos} {$${c.label}$};`);
+          }
+          if (valRaw) {
+            const valFormatted = formatValueForLatex(valRaw);
+            const vShift = getOffsetShift(c.valueOffset);
+            lines.push(`  \\node[below, font=${valueFont}, fill=white, inner sep=1pt${vShift}] at ${midPos} {$${valFormatted}$};`);
+          }
+        } else {
+          let labelOption = '';
+          if (c.label && valRaw) {
+            const valFormatted = formatValueForLatex(valRaw);
+            labelOption = `l={\\shortstack{${labelFont} $${c.label}$\\\\ ${valueFont} $${valFormatted}$}}`;
+          } else if (c.label) {
+            labelOption = `l={${labelFont} $${c.label}$}`;
+          } else if (valRaw) {
+            const valFormatted = formatValueForLatex(valRaw);
+            labelOption = `l={${valueFont} $${valFormatted}$}`;
+          }
+          lines.push(`  \\draw ${pos1} to[${tikzCode}${labelOption ? `, ${labelOption}` : ''}] ${pos2};`);
+        }
       }
     }
   });

@@ -16,6 +16,12 @@ interface CircuitState {
   activeWireWaypoints: Point[];
   mousePos: Point;
 
+  // Tamanhos Globais de Fonte para Labels e Valores
+  labelFontSize: number;
+  valueFontSize: number;
+  setLabelFontSize: (size: number | ((prev: number) => number)) => void;
+  setValueFontSize: (size: number | ((prev: number) => number)) => void;
+
   // Histórico Undo/Redo
   history: { components: CircuitComponent[]; wires: Wire[] }[];
   historyIndex: number;
@@ -23,6 +29,7 @@ interface CircuitState {
   // Ações de Componentes
   addComponent: (type: ComponentType, x: number, y: number) => void;
   updateComponent: (id: string, partial: Partial<CircuitComponent>) => void;
+  resetComponentTextOffsets: (id: string) => void;
   removeComponent: (id: string) => void;
   removeSelected: () => void;
   rotateComponent: (id: string) => void;
@@ -133,6 +140,22 @@ export const useCircuitStore = create<CircuitState>((set, get) => ({
   activeWireWaypoints: [],
   mousePos: { x: 0, y: 0 },
 
+  // Tamanhos Globais Padrão
+  labelFontSize: 12,
+  valueFontSize: 11,
+
+  setLabelFontSize: (sizeOrFn) => {
+    set((state) => ({
+      labelFontSize: typeof sizeOrFn === 'function' ? sizeOrFn(state.labelFontSize) : sizeOrFn,
+    }));
+  },
+
+  setValueFontSize: (sizeOrFn) => {
+    set((state) => ({
+      valueFontSize: typeof sizeOrFn === 'function' ? sizeOrFn(state.valueFontSize) : sizeOrFn,
+    }));
+  },
+
   history: [],
   historyIndex: -1,
 
@@ -184,6 +207,16 @@ export const useCircuitStore = create<CircuitState>((set, get) => ({
     pushHistory();
     set({
       components: components.map((c) => (c.id === id ? { ...c, ...partial } : c)),
+    });
+  },
+
+  resetComponentTextOffsets: (id) => {
+    const { components, pushHistory } = get();
+    pushHistory();
+    set({
+      components: components.map((c) =>
+        c.id === id ? { ...c, labelOffset: undefined, valueOffset: undefined } : c
+      ),
     });
   },
 
@@ -500,6 +533,8 @@ export const useCircuitStore = create<CircuitState>((set, get) => ({
         set({
           components: data.components,
           wires: data.wires,
+          labelFontSize: typeof data.labelFontSize === 'number' ? data.labelFontSize : 12,
+          valueFontSize: typeof data.valueFontSize === 'number' ? data.valueFontSize : 11,
           selectedComponentId: null,
           selectedWireId: null,
         });
@@ -510,12 +545,14 @@ export const useCircuitStore = create<CircuitState>((set, get) => ({
   },
 
   getProjectJson: () => {
-    const { components, wires } = get();
+    const { components, wires, labelFontSize, valueFontSize } = get();
     return JSON.stringify(
       {
-        version: '1.0',
+        version: '1.1',
         app: 'CircuitCraft Web',
         exportedAt: new Date().toISOString(),
+        labelFontSize,
+        valueFontSize,
         components,
         wires,
       },

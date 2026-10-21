@@ -1,6 +1,7 @@
 import React from 'react';
 import type { CircuitComponent } from '../../types/circuit';
 import { COMPONENT_DEFINITIONS } from '../../utils/componentDefinitions';
+import { useCircuitStore } from '../../store/useCircuitStore';
 import {
   ResistorSymbol,
   CapacitorSymbol,
@@ -58,6 +59,7 @@ interface ComponentSymbolProps {
   component: CircuitComponent;
   isSelected?: boolean;
   onPinClick?: (pinId: string, e: React.MouseEvent) => void;
+  onTextMouseDown?: (compId: string, type: 'label' | 'value', e: React.MouseEvent) => void;
   activePinId?: string | null;
 }
 
@@ -65,9 +67,12 @@ export const ComponentSymbol: React.FC<ComponentSymbolProps> = ({
   component,
   isSelected,
   onPinClick,
+  onTextMouseDown,
   activePinId,
 }) => {
   const def = COMPONENT_DEFINITIONS[component.type];
+  const { labelFontSize, valueFontSize } = useCircuitStore();
+
   if (!def) return null;
 
   const renderInnerSymbol = () => {
@@ -170,7 +175,7 @@ export const ComponentSymbol: React.FC<ComponentSymbolProps> = ({
       case 'TEXT':
         return <TextSymbol component={component} isSelected={isSelected} />;
       case 'JUNCTION':
-        return null; // O pino do nó é desenhado pelos pinos abaixo ou WireRenderer
+        return null;
 
       default:
         return null;
@@ -219,7 +224,7 @@ export const ComponentSymbol: React.FC<ComponentSymbolProps> = ({
       {/* Desenho do símbolo */}
       {renderInnerSymbol()}
 
-      {/* Rótulo (Label ex: R1) e Valor (ex: 10 kΩ ±1%) - oculta para nó de junção, GND e TEXT */}
+      {/* Rótulo (Label ex: R1) e Valor (ex: 10 kΩ ±1%) com suporte a arrasto e halo branco */}
       {component.type !== 'JUNCTION' && component.type !== 'GND' && component.type !== 'TEXT' && (() => {
         const isVertical = component.rotation % 180 !== 0;
         const displayValue = [
@@ -236,34 +241,64 @@ export const ComponentSymbol: React.FC<ComponentSymbolProps> = ({
           component.type !== 'PIN_TERMINAL'
         );
 
+        const labelOffsetX = component.labelOffset?.x || 0;
+        const labelOffsetY = component.labelOffset?.y || 0;
+        const valueOffsetX = component.valueOffset?.x || 0;
+        const valueOffsetY = component.valueOffset?.y || 0;
+
         if (isVertical) {
+          const baseLabelX = hasValue ? -def.height / 2 - 8 : 0;
+          const baseLabelY = hasValue ? 4 : -def.width / 2 - 8;
+          const baseValueX = def.height / 2 + 8;
+          const baseValueY = 4;
+
           return (
             <g
               transform={`rotate(${-component.rotation}) scale(${
                 component.mirrored ? -1 : 1
               }, 1)`}
-              className="pointer-events-none select-none font-sans"
+              className="select-none"
             >
               <text
-                x={hasValue ? -def.height / 2 - 8 : 0}
-                y={hasValue ? 4 : -def.width / 2 - 8}
+                x={baseLabelX + labelOffsetX}
+                y={baseLabelY + labelOffsetY}
                 textAnchor={hasValue ? 'end' : 'middle'}
-                fontSize="12.5"
+                fontSize={labelFontSize}
                 fontWeight="700"
                 fill="#0f172a"
+                stroke="#ffffff"
+                strokeWidth="3.5"
+                strokeLinejoin="round"
+                style={{ paintOrder: 'stroke fill' }}
+                className="cursor-move pointer-events-auto select-none font-sans hover:fill-blue-600 transition-colors"
+                onMouseDown={(e) => {
+                  e.stopPropagation();
+                  onTextMouseDown?.(component.id, 'label', e);
+                }}
               >
+                <title>Arraste para reposicionar identificador</title>
                 {component.label}
               </text>
+
               {hasValue && (
                 <text
-                  x={def.height / 2 + 8}
-                  y="4"
+                  x={baseValueX + valueOffsetX}
+                  y={baseValueY + valueOffsetY}
                   textAnchor="start"
-                  fontSize="11"
+                  fontSize={valueFontSize}
                   fontWeight="600"
                   fill="#2563eb"
-                  className="font-mono"
+                  stroke="#ffffff"
+                  strokeWidth="3"
+                  strokeLinejoin="round"
+                  style={{ paintOrder: 'stroke fill' }}
+                  className="cursor-move pointer-events-auto select-none font-mono hover:fill-blue-800 transition-colors"
+                  onMouseDown={(e) => {
+                    e.stopPropagation();
+                    onTextMouseDown?.(component.id, 'value', e);
+                  }}
                 >
+                  <title>Arraste para reposicionar especificação</title>
                   {displayValue}
                 </text>
               )}
@@ -271,33 +306,58 @@ export const ComponentSymbol: React.FC<ComponentSymbolProps> = ({
           );
         }
 
+        const baseLabelX = 0;
+        const baseLabelY = -def.height / 2 - 7;
+        const baseValueX = 0;
+        const baseValueY = def.height / 2 + 18;
+
         return (
           <g
             transform={`rotate(${-component.rotation}) scale(${
               component.mirrored ? -1 : 1
             }, 1)`}
-            className="pointer-events-none select-none font-sans"
+            className="select-none"
           >
             <text
-              x="0"
-              y={-def.height / 2 - 7}
+              x={baseLabelX + labelOffsetX}
+              y={baseLabelY + labelOffsetY}
               textAnchor="middle"
-              fontSize="12.5"
+              fontSize={labelFontSize}
               fontWeight="700"
               fill="#0f172a"
+              stroke="#ffffff"
+              strokeWidth="3.5"
+              strokeLinejoin="round"
+              style={{ paintOrder: 'stroke fill' }}
+              className="cursor-move pointer-events-auto select-none font-sans hover:fill-blue-600 transition-colors"
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                onTextMouseDown?.(component.id, 'label', e);
+              }}
             >
+              <title>Arraste para reposicionar identificador</title>
               {component.label}
             </text>
+
             {hasValue && (
               <text
-                x="0"
-                y={def.height / 2 + 18}
+                x={baseValueX + valueOffsetX}
+                y={baseValueY + valueOffsetY}
                 textAnchor="middle"
-                fontSize="11"
+                fontSize={valueFontSize}
                 fontWeight="600"
                 fill="#2563eb"
-                className="font-mono"
+                stroke="#ffffff"
+                strokeWidth="3"
+                strokeLinejoin="round"
+                style={{ paintOrder: 'stroke fill' }}
+                className="cursor-move pointer-events-auto select-none font-mono hover:fill-blue-800 transition-colors"
+                onMouseDown={(e) => {
+                  e.stopPropagation();
+                  onTextMouseDown?.(component.id, 'value', e);
+                }}
               >
+                <title>Arraste para reposicionar especificação</title>
                 {displayValue}
               </text>
             )}
