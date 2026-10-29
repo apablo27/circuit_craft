@@ -8,16 +8,19 @@ import {
   Save,
   Cpu,
   HelpCircle,
+  FileCode,
 } from 'lucide-react';
 import { useCircuitStore } from '../../store/useCircuitStore';
 
 interface HeaderProps {
   onOpenExportModal: () => void;
+  onOpenCircuitikzModal: () => void;
   onOpenShortcutsModal: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   onOpenExportModal,
+  onOpenCircuitikzModal,
   onOpenShortcutsModal,
 }) => {
   const {
@@ -165,7 +168,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Direita: Salvar, Abrir, Atalhos e Exportar */}
+      {/* Direita: Salvar, Abrir, Importar LaTeX, Atalhos e Exportar */}
       <div className="flex items-center gap-2">
         <input
           type="file"
@@ -191,6 +194,16 @@ export const Header: React.FC<HeaderProps> = ({
         >
           <Save className="w-4 h-4 text-slate-600" />
           <span>Salvar</span>
+        </button>
+
+        {/* Botão de Importar LaTeX */}
+        <button
+          onClick={onOpenCircuitikzModal}
+          className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg border border-indigo-200 transition-colors cursor-pointer shadow-2xs"
+          title="Importar circuito a partir de código LaTeX CircuiTikZ"
+        >
+          <FileCode className="w-4 h-4 text-indigo-600" />
+          <span>Importar LaTeX</span>
         </button>
 
         <button

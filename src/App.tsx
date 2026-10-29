@@ -27,6 +27,7 @@ export const App: React.FC = () => {
       {/* Barra de Navegação Superior */}
       <Header
         onOpenExportModal={() => setIsExportModalOpen(true)}
+        onOpenCircuitikzModal={() => setIsCircuitikzModalOpen(true)}
         onOpenShortcutsModal={() => setIsShortcutsModalOpen(true)}
       />
 
