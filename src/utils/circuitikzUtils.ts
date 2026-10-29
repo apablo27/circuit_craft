@@ -47,7 +47,7 @@ export function exportToCircuitikz(
     return `% Circuito Vazio\n\\begin{circuitikz}[american]\n\\end{circuitikz}`;
   }
 
-  // Mapeia os IDs internos de componente (ex: comp_178528...) para identificadores TikZ legíveis (ex: FFJK1, FFD1, R1, C1)
+  // Mapeia os IDs internos de componente para identificadores TikZ legíveis
   const compTikzIdMap = new Map<string, string>();
   const usedTikzIds = new Set<string>();
 
@@ -89,18 +89,11 @@ export function exportToCircuitikz(
     return `${tx},${ty}`;
   };
 
-    const storeState = typeof useCircuitStore !== 'undefined' ? useCircuitStore.getState?.() : undefined;
+  const storeState = typeof useCircuitStore !== 'undefined' ? useCircuitStore.getState?.() : undefined;
   const labelSize = options?.labelFontSize ?? storeState?.labelFontSize ?? 12;
   const valueSize = options?.valueFontSize ?? storeState?.valueFontSize ?? 11;
   const labelFont = getLatexFontSize(labelSize);
   const valueFont = getLatexFontSize(valueSize);
-
-  const getOffsetShift = (offset?: { x: number; y: number }): string => {
-    if (!offset || (offset.x === 0 && offset.y === 0)) return '';
-    const xcm = (offset.x * scale).toFixed(2);
-    const ycm = (-offset.y * scale).toFixed(2);
-    return `, xshift=${xcm}cm, yshift=${ycm}cm`;
-  };
 
   const resolveCompPinAnchor = (comp: CircuitComponent, pinId: string, pt: { x: number; y: number }): string => {
     const nodeName = getTikzId(comp.id);
@@ -171,61 +164,121 @@ export function exportToCircuitikz(
     return `, rotate=${tikzAngle}`;
   };
 
-  // 1. Declarar componentes multimáticos/semicondutores (Transistores, CI, Transformadores, etc.)
+  // Helper unificado para calcular deslocamentos e âncoras exatas de textos (label e value)
+  const getComponentTextPlacement = (
+    c: CircuitComponent,
+    def: { width: number; height: number }
+  ) => {
+    const isVertical = c.rotation % 180 !== 0;
+    const hasLabel = Boolean(c.label && c.label.trim() !== '');
+    const valRaw = c.value || '';
+    const hasValue = Boolean(
+      valRaw &&
+      valRaw.trim() !== '' &&
+      valRaw !== c.label &&
+      c.type !== 'PIN_TERMINAL'
+    );
+
+    const hasLabelOffset = Boolean(c.labelOffset && (c.labelOffset.x !== 0 || c.labelOffset.y !== 0));
+    const hasValueOffset = Boolean(c.valueOffset && (c.valueOffset.x !== 0 || c.valueOffset.y !== 0));
+
+    // Posições base no sistema de coordenadas do canvas (idênticas a ComponentSymbol.tsx)
+    const baseLabelX = isVertical ? (hasValue ? -def.height / 2 - 8 : 0) : 0;
+    const baseLabelY = isVertical ? (hasValue ? 4 : -def.width / 2 - 8) : -def.height / 2 - 7;
+    const baseValueX = isVertical ? def.height / 2 + 8 : 0;
+    const baseValueY = isVertical ? 4 : def.height / 2 + 18;
+
+    const effLabelX = baseLabelX + (c.labelOffset?.x || 0);
+    const effLabelY = baseLabelY + (c.labelOffset?.y || 0);
+    const effValueX = baseValueX + (c.valueOffset?.x || 0);
+    const effValueY = baseValueY + (c.valueOffset?.y || 0);
+
+    const labelPos = toTikZ(c.x + effLabelX, c.y + effLabelY);
+    const valuePos = toTikZ(c.x + effValueX, c.y + effValueY);
+
+    const anchorLabel = effLabelY > 8 ? 'north' : (effLabelY < -8 ? 'south' : (effLabelX < 0 ? 'east' : 'west'));
+    const anchorValue = effValueY > 8 ? 'north' : (effValueY < -8 ? 'south' : (effValueX < 0 ? 'east' : 'west'));
+
+    return {
+      hasLabel,
+      hasValue,
+      valRaw,
+      hasLabelOffset,
+      hasValueOffset,
+      labelPos,
+      valuePos,
+      anchorLabel,
+      anchorValue,
+    };
+  };
+
+  // 1. Declarar componentes multimáticos, semicondutores, analógicos e terminais
   components.forEach((c) => {
     const pos = toTikZ(c.x, c.y);
     const cId = getTikzId(c.id);
     const rotOpt = getRotOpt(c.rotation);
+    const def = COMPONENT_DEFINITIONS[c.type];
+    const defW = def ? def.width : 80;
+    const defH = def ? def.height : 40;
+    const tp = getComponentTextPlacement(c, { width: defW, height: defH });
 
     switch (c.type) {
       case 'BJT_NPN':
-        lines.push(`  \\draw (${pos}) node[npn${rotOpt}] (${cId}) {${c.label}};`);
-        break;
       case 'BJT_PNP':
-        lines.push(`  \\draw (${pos}) node[pnp${rotOpt}] (${cId}) {${c.label}};`);
-        break;
       case 'MOSFET_N':
-        lines.push(`  \\draw (${pos}) node[nmos${rotOpt}] (${cId}) {${c.label}};`);
+      case 'MOSFET_P': {
+        const nodeType =
+          c.type === 'BJT_NPN' ? 'npn' :
+          c.type === 'BJT_PNP' ? 'pnp' :
+          c.type === 'MOSFET_N' ? 'nmos' : 'pmos';
+        lines.push(`  \\draw (${pos}) node[${nodeType}${rotOpt}] (${cId}) {};`);
+        if (tp.hasLabel) {
+          lines.push(`  \\node[anchor=${tp.anchorLabel}, font=${labelFont}\\bfseries] at (${tp.labelPos}) {$${c.label}$};`);
+        }
+        if (tp.hasValue) {
+          lines.push(`  \\node[anchor=${tp.anchorValue}, font=${valueFont}] at (${tp.valuePos}) {$${formatValueForLatex(tp.valRaw)}$};`);
+        }
         break;
-      case 'MOSFET_P':
-        lines.push(`  \\draw (${pos}) node[pmos${rotOpt}] (${cId}) {${c.label}};`);
+      }
+      case 'OPAMP': {
+        lines.push(`  \\draw (${pos}) node[op amp${rotOpt}] (${cId}) {};`);
+        if (tp.hasLabel) {
+          lines.push(`  \\node[anchor=${tp.anchorLabel}, font=${labelFont}\\bfseries] at (${tp.labelPos}) {$${c.label}$};`);
+        }
+        if (tp.hasValue) {
+          lines.push(`  \\node[anchor=${tp.anchorValue}, font=${valueFont}] at (${tp.valuePos}) {$${formatValueForLatex(tp.valRaw)}$};`);
+        }
         break;
-      case 'OPAMP':
-        lines.push(`  \\draw (${pos}) node[op amp${rotOpt}] (${cId}) {${c.label}};`);
-        break;
+      }
       case 'GATE_NOT':
-        lines.push(`  \\draw (${pos}) node[not port${rotOpt}] (${cId}) {${c.label}};`);
-        break;
       case 'GATE_AND':
-        lines.push(`  \\draw (${pos}) node[and port${rotOpt}] (${cId}) {${c.label}};`);
-        break;
       case 'GATE_AND3':
-        lines.push(`  \\draw (${pos}) node[and port, number inputs=3${rotOpt}] (${cId}) {${c.label}};`);
-        break;
       case 'GATE_NAND':
-        lines.push(`  \\draw (${pos}) node[nand port${rotOpt}] (${cId}) {${c.label}};`);
-        break;
       case 'GATE_NAND3':
-        lines.push(`  \\draw (${pos}) node[nand port, number inputs=3${rotOpt}] (${cId}) {${c.label}};`);
-        break;
       case 'GATE_OR':
-        lines.push(`  \\draw (${pos}) node[or port${rotOpt}] (${cId}) {${c.label}};`);
-        break;
       case 'GATE_OR3':
-        lines.push(`  \\draw (${pos}) node[or port, number inputs=3${rotOpt}] (${cId}) {${c.label}};`);
-        break;
       case 'GATE_NOR':
-        lines.push(`  \\draw (${pos}) node[nor port${rotOpt}] (${cId}) {${c.label}};`);
-        break;
       case 'GATE_NOR3':
-        lines.push(`  \\draw (${pos}) node[nor port, number inputs=3${rotOpt}] (${cId}) {${c.label}};`);
-        break;
       case 'GATE_XOR':
-        lines.push(`  \\draw (${pos}) node[xor port${rotOpt}] (${cId}) {${c.label}};`);
+      case 'GATE_XNOR': {
+        const isThree = c.type.endsWith('3');
+        const gateBase =
+          c.type.startsWith('GATE_NOT') ? 'not port' :
+          c.type.startsWith('GATE_AND') ? 'and port' :
+          c.type.startsWith('GATE_NAND') ? 'nand port' :
+          c.type.startsWith('GATE_OR') ? 'or port' :
+          c.type.startsWith('GATE_NOR') ? 'nor port' :
+          c.type.startsWith('GATE_XOR') ? 'xor port' : 'xnor port';
+        const numIn = isThree ? ', number inputs=3' : '';
+        lines.push(`  \\draw (${pos}) node[${gateBase}${numIn}${rotOpt}] (${cId}) {};`);
+        if (tp.hasLabel) {
+          lines.push(`  \\node[anchor=${tp.anchorLabel}, font=${labelFont}\\bfseries] at (${tp.labelPos}) {$${c.label}$};`);
+        }
+        if (tp.hasValue) {
+          lines.push(`  \\node[anchor=${tp.anchorValue}, font=${valueFont}] at (${tp.valuePos}) {$${formatValueForLatex(tp.valRaw)}$};`);
+        }
         break;
-      case 'GATE_XNOR':
-        lines.push(`  \\draw (${pos}) node[xnor port${rotOpt}] (${cId}) {${c.label}};`);
-        break;
+      }
       case 'CLOCK': {
         const valStr = c.value ? formatValueForLatex(c.value) : '1kHz';
         lines.push(`  \\draw (${pos}) node[draw, rectangle, rounded corners=2pt, minimum size=0.8cm${rotOpt}] (${cId}) {$\\sqcap\\!\\sqcup$};`);
@@ -264,7 +317,6 @@ export function exportToCircuitikz(
         const valStr = c.value ? formatValueForLatex(c.value) : '';
         const isNeg = c.type === 'FF_JK' || c.type.endsWith('_NEG');
 
-        // Caixa do Flip-Flop (1.5cm x 2.1cm conforme modelo de referência)
         lines.push(`  \\draw (${pos}) node[draw, minimum width=1.5cm, minimum height=2.1cm${rotOpt}] (${cId}) {};`);
         if (c.label) {
           lines.push(`  \\node[above, font=\\small\\bfseries] at (${cId}.north) {$${c.label}$};`);
@@ -273,7 +325,6 @@ export function exportToCircuitikz(
           lines.push(`  \\node[below, font=\\small] at (${cId}.south) {$${valStr}$};`);
         }
 
-        // Rótulos de Preset (topo) e Clear (base) com bolhas de inversão (ativo em 0)
         if (c.type === 'FF_D') {
           lines.push(`  \\draw ([yshift=0.08cm]${cId}.north) circle (0.06cm);`);
           lines.push(`  \\node[font=\\tiny\\bfseries, anchor=north] at (${cId}.north) {PRE};`);
@@ -284,21 +335,17 @@ export function exportToCircuitikz(
           lines.push(`  \\node[font=\\tiny\\bfseries, anchor=south] at (${cId}.south) {CLR};`);
         }
 
-        // Saídas Q e Q_bar (lado direito)
         lines.push(`  \\node[font=\\tiny\\bfseries, anchor=east] at ([yshift=-0.45cm]${cId}.north east) {Q};`);
         lines.push(`  \\node[font=\\tiny\\bfseries, anchor=east] at ([yshift=0.45cm]${cId}.south east) {$\\bar{\\text{Q}}$};`);
 
         if (c.type.startsWith('FF_D') || c.type.startsWith('FF_T')) {
           const topLabel = c.type.startsWith('FF_D') ? 'D' : 'T';
           lines.push(`  \\node[font=\\tiny\\bfseries, anchor=west] at ([yshift=-0.45cm]${cId}.north west) {${topLabel}};`);
-
-          // Seta do Clock e Bolha (se borda de descida)
           if (isNeg) {
             lines.push(`  \\draw ([xshift=-0.08cm, yshift=0.45cm]${cId}.south west) circle (0.06cm);`);
           }
           lines.push(`  \\draw ([yshift=0.35cm]${cId}.south west) -- ++(0.15, 0.10) -- ++(-0.15, 0.10);`);
         } else {
-          // FF_JK ou FF_SR (J/S no topo, CLK no meio, K/R na base)
           const topLabel = c.type.startsWith('FF_JK') ? 'J' : 'S';
           const botLabel = c.type.startsWith('FF_JK') ? 'K' : 'R';
 
@@ -310,7 +357,6 @@ export function exportToCircuitikz(
           }
           lines.push(`  \\draw ([yshift=-0.10cm]${cId}.west) -- ++(0.15, 0.10) -- ++(-0.15, 0.10);`);
         }
-
         break;
       }
       case 'TRANSFORMER': {
@@ -337,7 +383,7 @@ export function exportToCircuitikz(
         const displayLabel = formatValueForLatex(c.label || c.value || 'TERM');
         lines.push(`  \\draw (${pos}) node[circle, draw, fill=white, inner sep=2.5pt] (${cId}) {};`);
         if (displayLabel) {
-          lines.push(`  \\node[above, font=\\small] at (${cId}.north) {$${displayLabel}$};`);
+          lines.push(`  \\node[anchor=${tp.anchorLabel}, font=\\small] at (${tp.labelPos}) {$${displayLabel}$};`);
         }
         break;
       }
@@ -365,7 +411,6 @@ export function exportToCircuitikz(
     SOURCE_AC: 'sV',
   };
 
-
   // 2. Conexões de Componentes Bipolos
   components.forEach((c) => {
     const tikzCode = bipoleTypes[c.type];
@@ -377,40 +422,37 @@ export function exportToCircuitikz(
         const pos1 = `(${toTikZ(p1.x, p1.y)})`;
         const pos2 = `(${toTikZ(p2.x, p2.y)})`;
 
-        let valRaw = c.value || '';
-        if (c.type === 'SOURCE_AC' && c.frequency) {
-          valRaw = valRaw ? `${valRaw}, ${c.frequency}` : c.frequency;
-        }
+        const tp = getComponentTextPlacement(c, { width: def.width, height: def.height });
+        const valFormatted = formatValueForLatex(tp.valRaw);
 
-        const hasLabelOffset = Boolean(c.labelOffset && (c.labelOffset.x !== 0 || c.labelOffset.y !== 0));
-        const hasValueOffset = Boolean(c.valueOffset && (c.valueOffset.x !== 0 || c.valueOffset.y !== 0));
+        lines.push(`  % Componente: ${c.label || def.name}${tp.valRaw ? ` (${tp.valRaw})` : ''}`);
 
-        lines.push(`  % Componente: ${c.label || def.name}${valRaw ? ` (${valRaw})` : ''}`);
-
-        if (hasLabelOffset || hasValueOffset) {
-          const midPos = `(${toTikZ(c.x, c.y)})`;
+        if (tp.hasLabelOffset || tp.hasValueOffset) {
+          // Posições personalizadas definidas por arrasto manual no canvas
           lines.push(`  \\draw ${pos1} to[${tikzCode}] ${pos2};`);
-          if (c.label) {
-            const lShift = getOffsetShift(c.labelOffset);
-            lines.push(`  \\node[above, font=${labelFont}\\bfseries, fill=white, inner sep=1pt${lShift}] at ${midPos} {$${c.label}$};`);
+          if (tp.hasLabel) {
+            lines.push(`  \\node[anchor=${tp.anchorLabel}, font=${labelFont}\\bfseries, fill=white, inner sep=1pt] at (${tp.labelPos}) {$${c.label}$};`);
           }
-          if (valRaw) {
-            const valFormatted = formatValueForLatex(valRaw);
-            const vShift = getOffsetShift(c.valueOffset);
-            lines.push(`  \\node[below, font=${valueFont}, fill=white, inner sep=1pt${vShift}] at ${midPos} {$${valFormatted}$};`);
+          if (tp.hasValue) {
+            lines.push(`  \\node[anchor=${tp.anchorValue}, font=${valueFont}, fill=white, inner sep=1pt] at (${tp.valuePos}) {$${valFormatted}$};`);
           }
         } else {
-          let labelOption = '';
-          if (c.label && valRaw) {
-            const valFormatted = formatValueForLatex(valRaw);
-            labelOption = `l={\\shortstack{${labelFont} $${c.label}$\\\\ ${valueFont} $${valFormatted}$}}`;
-          } else if (c.label) {
-            labelOption = `l={${labelFont} $${c.label}$}`;
-          } else if (valRaw) {
-            const valFormatted = formatValueForLatex(valRaw);
-            labelOption = `l={${valueFont} $${valFormatted}$}`;
+          // Posições padrão alinhadas ao comportamento visual do canvas:
+          // label fica acima (l=), value fica abaixo (l_=)
+          const labelOpts: string[] = [];
+          if (tp.hasLabel && tp.hasValue) {
+            // Em CircuiTikZ, l= (label) e a= (annotation) são chaves distintas que
+            // permitem posicionar simultaneamente texto em ambos os lados sem sobreposição.
+            labelOpts.push(`l={${labelFont} $${c.label}$}`);
+            labelOpts.push(`a={${valueFont} $${valFormatted}$}`);
+          } else if (tp.hasLabel) {
+            labelOpts.push(`l={${labelFont} $${c.label}$}`);
+          } else if (tp.hasValue) {
+            labelOpts.push(`l_={${valueFont} $${valFormatted}$}`);
           }
-          lines.push(`  \\draw ${pos1} to[${tikzCode}${labelOption ? `, ${labelOption}` : ''}] ${pos2};`);
+
+          const optStr = labelOpts.length > 0 ? `, ${labelOpts.join(', ')}` : '';
+          lines.push(`  \\draw ${pos1} to[${tikzCode}${optStr}] ${pos2};`);
         }
       }
     }
@@ -419,7 +461,6 @@ export function exportToCircuitikz(
   lines.push('');
   lines.push('  % Conexões de Fios e Âncoras do Circuito');
 
-  // Helper para obter descrição amigável do componente
   const getCompDescr = (compId?: string) => {
     if (!compId) return 'Ponto';
     const comp = components.find((c) => c.id === compId);
@@ -461,7 +502,6 @@ export function exportToCircuitikz(
         const fromDesc = getCompDescr(w.from.componentId);
         const toDesc = getCompDescr(w.to.componentId);
         lines.push(`  % Fio conectando: ${fromDesc} -> ${toDesc}`);
-
         lines.push(`  \\draw ${tikzCoords.join(' -- ')};`);
       }
     }
@@ -477,6 +517,7 @@ export function exportToCircuitikz(
 function cleanLatexLabel(raw: string): string {
   if (!raw) return '';
   return raw
+    .replace(/\{=\}/g, '=')
     .replace(/[\$\{\}]/g, '') // Remove $, { e }
     .replace(/\\mathrm/g, '')
     .replace(/\\text/g, '')
@@ -487,9 +528,6 @@ function cleanLatexLabel(raw: string): string {
     .trim();
 }
 
-/**
- * Importa um código LaTeX CircuiTikZ e converte em componentes e fios do CircuitCraft.
- */
 export function importFromCircuitikz(latexStr: string): {
   components: CircuitComponent[];
   wires: Wire[];
@@ -497,447 +535,668 @@ export function importFromCircuitikz(latexStr: string): {
   const components: CircuitComponent[] = [];
   const wires: Wire[] = [];
 
-  const scale = 80; // 1.0cm TikZ = 80px no canvas para espaçamento perfeito das portas lógicas
+  const scale = 80; // 1.0cm TikZ = 80px no canvas
   const originX = 200;
   const originY = 250;
 
-  // Componentes cujos pinos padrão na definição são verticais
-  const defaultVerticalTypes = new Set(['SOURCE_DC', 'SOURCE_AC', 'GND', 'VCC']);
+  const namedCoords = new Map<string, { x: number; y: number }>();
 
-  // Pre-processador para converter comandos standalone \node [...] (id) at (...) {label}; em \draw (...) node[...] (id) {label};
-  // Suporta expressões de posição complexas, e posições relativas de nós TikZ
-  const cleanLatex = latexStr
+  // Converte ponto em TikZ para coordenadas no canvas (com snap ao grid de 20px)
+  const toCanvas = (pt: { x: number; y: number }) => ({
+    x: snapToGrid(Math.round(originX + pt.x * scale)),
+    y: snapToGrid(Math.round(originY - pt.y * scale)),
+  });
+
+  const canvasKey = (cPt: { x: number; y: number }) => `${cPt.x},${cPt.y}`;
+
+  // Pre-processamento: remove comentários
+  const lines = latexStr
     .split('\n')
-    .map((line) => line.replace(/%.*$/, ''))
-    .join(' ')
-    .replace(/\\node\s*\[([^\]]+)\]\s*\(([^)]+)\)\s*at\s*\(([^)]+)\)\s*\{([^}]*)\};/gi, (_match, nodeOpts, nodeId, coords, label) => {
-      // Se a coordenada contiver expressões como "above=0.01cm of G0.north", pula criação de componente independente
-      if (nodeOpts.includes('above=') || nodeOpts.includes('below=') || nodeOpts.includes('left') || nodeOpts.includes('right')) {
-        return '';
-      }
-      return `\\draw (${coords}) node[${nodeOpts}] (${nodeId}) {${label}};`;
-    });
+    .map((l) => l.replace(/%.*$/, '').trim())
+    .filter(Boolean);
+  const fullText = lines.join(' ');
 
-  const mapBipoleType = (code: string): CircuitComponent['type'] => {
-    const c = code.trim();
-    if (c === 'sV' || c.includes('sinusoidal') || c === 'sqV') return 'SOURCE_AC';
-    if (c === 'V' || c === 'vsource' || c.includes('battery') || c === 'dcV') return 'SOURCE_DC';
-    if (c === 'R' || c.includes('resistor')) return 'RESISTOR';
-    if (c === 'C' || c.includes('capacitor')) return 'CAPACITOR';
-    if (c === 'eC') return 'CAPACITOR_POLAR';
-    if (c === 'D' || c.includes('diode')) return 'DIODE';
-    if (c === 'zzD') return 'DIODE_ZENER';
-    if (c === 'led') return 'LED';
-    return 'RESISTOR';
+  // 1. Extrair definições explícitas de coordenadas: \coordinate (NAME) at (X, Y);
+  const coordRegex = /\\coordinate\s*(?:\[[^\]]*\])?\s*\(([^)]+)\)\s*(?:at\s*)?\(([^)]+)\)\s*;/gi;
+  let cm: RegExpExecArray | null;
+  while ((cm = coordRegex.exec(fullText)) !== null) {
+    const cName = cm[1].trim();
+    const cValStr = cm[2].trim();
+    if (cValStr.includes(',')) {
+      const [cx, cy] = cValStr.split(',').map((s) => parseFloat(s.trim()));
+      if (!isNaN(cx) && !isNaN(cy)) {
+        namedCoords.set(cName, { x: cx, y: cy });
+      }
+    }
+  }
+
+  // Resolvedor flexível de pontos (suporta números, ++relativos, nomes de nós, âncoras e |- / -|)
+  const resolvePoint = (
+    ptStr: string,
+    currentPos: { x: number; y: number } | null
+  ): { x: number; y: number } | null => {
+    let s = ptStr.trim();
+    let isRel = false;
+
+    if (s.startsWith('++')) {
+      isRel = true;
+      s = s.slice(2).trim();
+    } else if (s.startsWith('+')) {
+      isRel = true;
+      s = s.slice(1).trim();
+    }
+
+    if (s.startsWith('(') && s.endsWith(')')) {
+      s = s.slice(1, -1).trim();
+    }
+
+    // Intersecção ortogonal: A |- B ou A -| B
+    if (s.includes('|-') || s.includes('-|')) {
+      const isVH = s.includes('|-');
+      const [pLeft, pRight] = s.split(isVH ? '|-' : '-|').map((p) => p.trim());
+      const ptL = resolvePoint(pLeft, currentPos);
+      const ptR = resolvePoint(pRight, currentPos);
+      if (ptL && ptR) {
+        return isVH ? { x: ptL.x, y: ptR.y } : { x: ptR.x, y: ptL.y };
+      }
+    }
+
+    // Coordenada explícita numérica (x, y)
+    if (s.includes(',')) {
+      const [x, y] = s.split(',').map((v) => parseFloat(v.trim()));
+      if (!isNaN(x) && !isNaN(y)) {
+        if (isRel && currentPos) {
+          return { x: currentPos.x + x, y: currentPos.y + y };
+        }
+        return { x, y };
+      }
+    }
+
+    // Nome de coordenada TikZ registrada
+    if (namedCoords.has(s)) {
+      return namedCoords.get(s)!;
+    }
+
+    // Âncora de componente nomeado: COMP.ANCHOR (ex: A.+, A.-, A.out, Q1.C)
+    if (s.includes('.')) {
+      const [compId, anchor] = s.split('.');
+      const comp = components.find((c) => c.id === compId);
+      if (comp) {
+        const cTikzX = (comp.x - originX) / scale;
+        const cTikzY = (originY - comp.y) / scale;
+
+        let relX = 0;
+        let relY = 0;
+
+        if (comp.type === 'OPAMP') {
+          if (anchor === '+' || anchor === 'in_plus') { relX = -40; relY = 20; }
+          else if (anchor === '-' || anchor === 'in_minus') { relX = -40; relY = -20; }
+          else if (anchor === 'out') { relX = 40; relY = 0; }
+          else if (anchor === 'up' || anchor === 'v_plus') { relX = 0; relY = -40; }
+          else if (anchor === 'down' || anchor === 'v_minus') { relX = 0; relY = 40; }
+        } else if (comp.type.startsWith('BJT')) {
+          if (anchor === 'B' || anchor === 'base') { relX = -30; relY = 0; }
+          else if (anchor === 'C' || anchor === 'collector') { relX = 30; relY = -30; }
+          else if (anchor === 'E' || anchor === 'emitter') { relX = 30; relY = 30; }
+        } else if (comp.type.startsWith('MOSFET')) {
+          if (anchor === 'G' || anchor === 'gate') { relX = -30; relY = 0; }
+          else if (anchor === 'D' || anchor === 'drain') { relX = 30; relY = -30; }
+          else if (anchor === 'S' || anchor === 'source') { relX = 30; relY = 30; }
+        } else if (comp.type.startsWith('GATE')) {
+          if (anchor === 'in' || anchor === 'in 1' || anchor === 'in_a') { relX = -40; relY = -20; }
+          else if (anchor === 'in 2' || anchor === 'in_b') { relX = -40; relY = 20; }
+          else if (anchor === 'in 3' || anchor === 'in_c') { relX = -40; relY = 0; }
+          else if (anchor === 'out') { relX = 40; relY = 0; }
+        }
+
+        const tX = cTikzX + relX / scale;
+        const tY = cTikzY - relY / scale;
+        return { x: tX, y: tY };
+      }
+    }
+
+    return null;
   };
 
   let compCounter = 1;
-
-  interface NodePinRef {
+  interface PinLoc {
     componentId: string;
     pinId: string;
+    pt: { x: number; y: number };
+    canvasPt: { x: number; y: number };
   }
 
-  const tikzNodeMap: Record<string, NodePinRef[]> = {};
-  const straightLineSegments: { key1: string; key2: string }[] = [];
+  const pinLocations: PinLoc[] = [];
+  const lineEdges: { p1: { x: number; y: number }; p2: { x: number; y: number } }[] = [];
 
-  const registerNodePin = (coordKey: string, ref: NodePinRef) => {
-    if (!tikzNodeMap[coordKey]) {
-      tikzNodeMap[coordKey] = [];
-    }
-    tikzNodeMap[coordKey].push(ref);
+  const registerPin = (componentId: string, pinId: string, pt: { x: number; y: number }) => {
+    const canvasPt = toCanvas(pt);
+    pinLocations.push({ componentId, pinId, pt, canvasPt });
   };
 
-  // Extrai blocos \draw ... ;
-  const drawBlockRegex = /\\draw\s+([^;]+);/g;
-  let drawMatch;
+  // 2. Extrai e processa blocos \draw ... ;
+  const drawRegex = /\\draw\s+([^;]+);/gi;
+  let dm: RegExpExecArray | null;
 
-  while ((drawMatch = drawBlockRegex.exec(cleanLatex)) !== null) {
-    const drawContent = drawMatch[1].trim();
+  while ((dm = drawRegex.exec(fullText)) !== null) {
+    const drawStr = dm[1].trim();
 
-    const tokenRegex = /\(([^)]+)\)|to\[([^\]]+)\]\s*\(([^)]+)\)|(?:--|-\||\|-)\s*\(([^)]+)\)|node\[([^\]]+)\]\s*(?:\(([^)]+)\))?\s*\{([^}]*)\}/g;
-    let tokenMatch;
-    let currentCoordKey: string | null = null;
-    let currentCoordVal: { x: number; y: number } | null = null;
+    const tokenRegex = /(to\s*\[([^\]]+)\]\s*(\+\+|\+)?\s*\(([^)]+)\))|((?:--|-\||\|-)\s*(\+\+|\+)?\s*\(([^)]+)\))|(coordinate\s*(?:\[[^\]]*\])?\s*\(([^)]+)\))|(node\s*(?:\[([^\]]*)\])?\s*(?:\(([^)]+)\))?\s*\{([^}]*)\})|(\(([^)]+)\))/g;
 
-    while ((tokenMatch = tokenRegex.exec(drawContent)) !== null) {
-      const fullToken = tokenMatch[0];
+    let tm: RegExpExecArray | null;
+    let currentPos: { x: number; y: number } | null = null;
 
-      if (fullToken.startsWith('to[')) {
-        const bipoleOpts = tokenMatch[2];
-        const destCoordStr = tokenMatch[3].trim();
+    while ((tm = tokenRegex.exec(drawStr)) !== null) {
+      if (tm[1]) {
+        // to[OPTS] (DEST)
+        const bipoleOpts = tm[2];
+        const isRel = Boolean(tm[3]);
+        const destRaw = tm[4].trim();
+        const ptStr = (isRel ? tm[3] : '') + '(' + destRaw + ')';
 
-        // Tenta resolver a coordenada de destino como (x,y) ou como (comp.anchor)
-        let destCoordVal: { x: number; y: number } | null = null;
+        const destPos = resolvePoint(ptStr, currentPos);
 
-        if (destCoordStr.includes(',')) {
-          const [x2, y2] = destCoordStr.split(',').map((s) => parseFloat(s.trim()));
-          if (!isNaN(x2) && !isNaN(y2)) {
-            destCoordVal = { x: x2, y: y2 };
-          }
-        } else {
-          // Referência nomeada de âncora (ex: Q1.C, Q1.E)
-          const [cId, anchor] = destCoordStr.split('.');
-          const comp = components.find((c) => c.id === cId);
-          if (comp) {
-            const def = COMPONENT_DEFINITIONS[comp.type];
-            const pinMap: Record<string, string> = { B: 'base', C: 'collector', E: 'emitter' };
-            const targetPinId = pinMap[anchor] || 'p1';
-            const pinDef = def?.pins.find((p) => p.id === targetPinId);
-
-            // Calcula posição real no canvas convertida para escala TikZ
-            const relX = pinDef ? pinDef.relX : 0;
-            const relY = pinDef ? pinDef.relY : 0;
-            const absX = comp.x + relX;
-            const absY = comp.y + relY;
-
-            const tikzX = (absX - originX) / scale;
-            const tikzY = (originY - absY) / scale;
-            destCoordVal = { x: tikzX, y: tikzY };
-          }
-        }
-
-        if (currentCoordVal && destCoordVal) {
-          const x2 = destCoordVal.x;
-          const y2 = destCoordVal.y;
-          const key1 = currentCoordKey!;
-          const key2 = destCoordStr.includes(',') ? `${x2},${y2}` : destCoordStr;
-
-          const px1 = Math.round(originX + currentCoordVal.x * scale);
-          const py1 = Math.round(originY - currentCoordVal.y * scale);
-          const px2 = Math.round(originX + x2 * scale);
-          const py2 = Math.round(originY - y2 * scale);
-
-          let cx = snapToGrid(Math.round((px1 + px2) / 2));
-          const cy = snapToGrid(Math.round((py1 + py2) / 2));
-
-          // Se o segmento for estritamente vertical, alinha a coordenada X ao ponto do pino/nó
-          if (px1 === px2) {
-            cx = px1;
-          }
-
+        if (currentPos && destPos) {
           const optsParts = bipoleOpts.split(',');
           const mainTypeRaw = optsParts[0].trim();
-          const compType = mapBipoleType(mainTypeRaw);
 
-          let labelVal = '';
-          const labelOpt = optsParts.find((o) => o.trim().startsWith('l=') || o.trim().startsWith('l_='));
-          if (labelOpt) {
-            labelVal = cleanLatexLabel(labelOpt.split('=')[1]);
-          }
-
-          const def = COMPONENT_DEFINITIONS[compType];
-          const compId = `comp_tex_${Date.now()}_${compCounter++}`;
-
-          const isPathVertical = Math.abs(py1 - py2) >= Math.abs(px1 - px2);
-          const isDefaultVertical = defaultVerticalTypes.has(compType);
-          let rotation = 0;
-
-          if (isPathVertical) {
-            rotation = isDefaultVertical ? 0 : 90;
+          if (mainTypeRaw === 'short') {
+            lineEdges.push({ p1: { ...currentPos }, p2: { ...destPos } });
           } else {
-            rotation = isDefaultVertical ? 90 : 0;
-          }
+            let compType: CircuitComponent['type'] = 'RESISTOR';
+            if (mainTypeRaw === 'R' || mainTypeRaw.includes('resistor')) compType = 'RESISTOR';
+            else if (mainTypeRaw === 'C' || mainTypeRaw.includes('capacitor')) compType = 'CAPACITOR';
+            else if (mainTypeRaw === 'eC') compType = 'CAPACITOR_POLAR';
+            else if (mainTypeRaw === 'D' || mainTypeRaw.includes('diode')) compType = 'DIODE';
+            else if (mainTypeRaw === 'zzD') compType = 'DIODE_ZENER';
+            else if (mainTypeRaw === 'led') compType = 'LED';
+            else if (mainTypeRaw === 'V' || mainTypeRaw === 'vsource' || mainTypeRaw.includes('battery') || mainTypeRaw === 'dcV') compType = 'SOURCE_DC';
+            else if (mainTypeRaw === 'sV' || mainTypeRaw.includes('sinusoidal') || mainTypeRaw === 'sqV') compType = 'SOURCE_AC';
 
-          components.push({
-            id: compId,
-            type: compType,
-            label: labelVal || `${def?.defaultLabel || 'X'}${compCounter}`,
-            value: compType === 'SOURCE_AC' ? (labelVal || '120Vrms') : (def?.defaultValue || ''),
-            x: cx,
-            y: cy,
-            rotation,
-          });
+            const lAboveOpt = optsParts.find(
+              (o) => o.trim().startsWith('l=') || o.trim().startsWith('l^=')
+            );
+            const lBelowOpt = optsParts.find(
+              (o) => o.trim().startsWith('l_=') || o.trim().startsWith('a=') || o.trim().startsWith('a_=') || o.trim().startsWith('a^=')
+            );
 
-          // Mapeamento correto de Pinos baseado na orientação e direção do vetor (start -> end)
-          const pin1Def = def?.pins[0]?.id || 'p1';
-          const pin2Def = def?.pins[1]?.id || 'p2';
+            let cLabel = '';
+            let cValue = '';
 
-          let pinForStart = pin1Def;
-          let pinForEnd = pin2Def;
-
-          if (isPathVertical) {
-            // Em vetores verticais: py1 > py2 significa vetor subindo (start no fundo, end no topo)
-            if (isDefaultVertical) {
-              if (py1 > py2) {
-                // start (fundo) -> pin2 (negative / bottom), end (topo) -> pin1 (positive / top)
-                pinForStart = pin2Def;
-                pinForEnd = pin1Def;
-              } else {
-                pinForStart = pin1Def;
-                pinForEnd = pin2Def;
-              }
+            if (lAboveOpt && lBelowOpt) {
+              const eqA = lAboveOpt.indexOf('=');
+              const eqB = lBelowOpt.indexOf('=');
+              cLabel = cleanLatexLabel(lAboveOpt.slice(eqA + 1));
+              cValue = cleanLatexLabel(lBelowOpt.slice(eqB + 1));
             } else {
-              // Componente horizontal rotacionado 90°
-              if (py1 > py2) {
-                pinForStart = pin2Def;
-                pinForEnd = pin1Def;
-              } else {
-                pinForStart = pin1Def;
-                pinForEnd = pin2Def;
+              const singleOpt = lAboveOpt || lBelowOpt;
+              if (singleOpt) {
+                const eqIdx = singleOpt.indexOf('=');
+                const raw = cleanLatexLabel(singleOpt.slice(eqIdx + 1));
+                if (raw.includes('=')) {
+                  const eqI = raw.indexOf('=');
+                  cLabel = raw.slice(0, eqI).trim();
+                  cValue = raw.slice(eqI + 1).trim();
+                } else if (singleOpt === lBelowOpt) {
+                  // l_ está explicitamente abaixo -> valor
+                  cValue = raw;
+                } else if (/^[0-9]/.test(raw) || raw.includes('Ω') || raw === 'R' || raw === '2R') {
+                  cValue = raw;
+                } else {
+                  cLabel = raw;
+                }
               }
             }
-          } else {
-            // Vetor horizontal: px1 < px2 significa vetor para a direita (start na esquerda, end na direita)
-            if (px1 > px2) {
-              pinForStart = pin2Def;
-              pinForEnd = pin1Def;
-            } else {
-              pinForStart = pin1Def;
-              pinForEnd = pin2Def;
-            }
-          }
 
-          registerNodePin(key1, { componentId: compId, pinId: pinForStart });
-          registerNodePin(key2, { componentId: compId, pinId: pinForEnd });
+            const c1 = toCanvas(currentPos);
+            const c2 = toCanvas(destPos);
 
-          currentCoordVal = { x: x2, y: y2 };
-          currentCoordKey = key2;
-        }
-      } else if (fullToken.startsWith('--') || fullToken.startsWith('-|') || fullToken.startsWith('|-')) {
-        const destCoordStr = tokenMatch[4].trim();
-        const key1 = currentCoordKey!;
-        let key2 = destCoordStr;
+            let cx = snapToGrid(Math.round((c1.x + c2.x) / 2));
+            let cy = snapToGrid(Math.round((c1.y + c2.y) / 2));
+            if (c1.x === c2.x) cx = c1.x;
+            if (c1.y === c2.y) cy = c1.y;
 
-        if (destCoordStr.includes(',')) {
-          const [x2, y2] = destCoordStr.split(',').map((s) => parseFloat(s.trim()));
-          if (!isNaN(x2) && !isNaN(y2)) {
-            key2 = `${x2},${y2}`;
-            currentCoordVal = { x: x2, y: y2 };
-          }
-        }
+            const isPathVertical = Math.abs(c1.y - c2.y) >= Math.abs(c1.x - c2.x);
+            const rotation = isPathVertical ? 90 : 0;
 
-        if (key1 && key2 && key1 !== key2) {
-          straightLineSegments.push({ key1, key2 });
-        }
-
-        currentCoordKey = key2;
-      } else if (fullToken.startsWith('node[')) {
-        const nodeTypeRaw = tokenMatch[5].toLowerCase();
-        const nodeIdRaw = tokenMatch[6];
-        const labelRaw = cleanLatexLabel(tokenMatch[7]);
-
-        if (currentCoordVal && currentCoordKey) {
-          const px = snapToGrid(Math.round(originX + currentCoordVal.x * scale));
-          const py = snapToGrid(Math.round(originY - currentCoordVal.y * scale));
-
-          let type: CircuitComponent['type'] | null = null;
-
-          const isThreeInput = nodeTypeRaw.includes('number inputs=3') || nodeTypeRaw.includes('inputs=3');
-
-          if (nodeTypeRaw.includes('ground')) type = 'GND';
-          else if (nodeTypeRaw.includes('vcc')) type = 'VCC';
-          else if (nodeTypeRaw.includes('npn')) type = 'BJT_NPN';
-          else if (nodeTypeRaw.includes('pnp')) type = 'BJT_PNP';
-          else if (nodeTypeRaw.includes('not') && nodeTypeRaw.includes('port')) type = 'GATE_NOT';
-          else if (nodeTypeRaw.includes('nand') && nodeTypeRaw.includes('port')) type = isThreeInput ? 'GATE_NAND3' : 'GATE_NAND';
-          else if (nodeTypeRaw.includes('and') && nodeTypeRaw.includes('port')) type = isThreeInput ? 'GATE_AND3' : 'GATE_AND';
-          else if (nodeTypeRaw.includes('nor') && nodeTypeRaw.includes('port')) type = isThreeInput ? 'GATE_NOR3' : 'GATE_NOR';
-          else if (nodeTypeRaw.includes('or') && nodeTypeRaw.includes('port')) type = isThreeInput ? 'GATE_OR3' : 'GATE_OR';
-          else if (nodeTypeRaw.includes('xnor') && nodeTypeRaw.includes('port')) type = 'GATE_XNOR';
-          else if (nodeTypeRaw.includes('xor') && nodeTypeRaw.includes('port')) type = 'GATE_XOR';
-          else if (nodeTypeRaw.includes('transformer')) type = 'TRANSFORMER';
-          else if (nodeTypeRaw.includes('circ')) {
-            type = null;
-          }
-
-          if (type) {
-            const def = COMPONENT_DEFINITIONS[type];
-            const compId = nodeIdRaw || `comp_tex_${Date.now()}_${compCounter++}`;
-
+            const compId = `comp_tex_${Date.now()}_${compCounter++}`;
             components.push({
               id: compId,
-              type,
-              label: labelRaw || `${def?.defaultLabel || 'U'}${compCounter}`,
-              value: def?.defaultValue || '',
-              x: px,
-              y: py,
+              type: compType,
+              label: cLabel,
+              value: cValue,
+              x: cx,
+              y: cy,
+              rotation,
+            });
+
+            const pin1 = 'p1';
+            const pin2 = 'p2';
+            let pinForStart = pin1;
+            let pinForEnd = pin2;
+
+            if (isPathVertical) {
+              if (c1.y > c2.y) { pinForStart = pin2; pinForEnd = pin1; }
+            } else {
+              if (c1.x > c2.x) { pinForStart = pin2; pinForEnd = pin1; }
+            }
+
+            registerPin(compId, pinForStart, currentPos);
+            registerPin(compId, pinForEnd, destPos);
+          }
+
+          currentPos = destPos;
+        }
+      } else if (tm[5]) {
+        // -- (DEST) ou -| (DEST) ou |- (DEST)
+        const isRel = Boolean(tm[6]);
+        const destRaw = tm[7].trim();
+        const ptStr = (isRel ? tm[6] : '') + '(' + destRaw + ')';
+
+        const destPos = resolvePoint(ptStr, currentPos);
+        if (currentPos && destPos) {
+          lineEdges.push({ p1: { ...currentPos }, p2: { ...destPos } });
+          currentPos = destPos;
+        }
+      } else if (tm[8]) {
+        // coordinate(NAME)
+        const cName = tm[9].trim();
+        if (currentPos) {
+          namedCoords.set(cName, { ...currentPos });
+        }
+      } else if (tm[10]) {
+        // node[OPTS] (NAME) {LABEL}
+        const nodeOpts = (tm[11] || '').toLowerCase();
+        const nodeId = tm[12] ? tm[12].trim() : `comp_tex_${Date.now()}_${compCounter++}`;
+        const rawLabel = cleanLatexLabel(tm[13] || '');
+
+        if (currentPos) {
+          const cPos = toCanvas(currentPos);
+          const isThreeInput = nodeOpts.includes('inputs=3');
+
+          if (nodeOpts.includes('ground')) {
+            const compId = nodeId;
+            components.push({
+              id: compId,
+              type: 'GND',
+              label: '',
+              value: '',
+              x: cPos.x,
+              y: cPos.y + 20, // offset para alinhar o terminal p1 no topo
+              rotation: 0,
+            });
+            registerPin(compId, 'p1', currentPos);
+          } else if (nodeOpts.includes('vcc')) {
+            const compId = nodeId;
+            components.push({
+              id: compId,
+              type: 'VCC',
+              label: rawLabel || '+VCC',
+              value: rawLabel || '5V',
+              x: cPos.x,
+              y: cPos.y - 20,
+              rotation: 0,
+            });
+            registerPin(compId, 'p1', currentPos);
+          } else if (nodeOpts.includes('op amp') || nodeOpts.includes('opamp')) {
+            const compId = nodeId;
+            components.push({
+              id: compId,
+              type: 'OPAMP',
+              label: rawLabel || compId,
+              value: 'TL081',
+              x: cPos.x,
+              y: cPos.y,
               rotation: 0,
             });
 
-            if (type === 'TRANSFORMER') {
-              registerNodePin(`${compId}.A1`, { componentId: compId, pinId: 'p1_in' });
-              registerNodePin(`${compId}.A2`, { componentId: compId, pinId: 'p2_in' });
-              registerNodePin(`${compId}.B1`, { componentId: compId, pinId: 'sec1_out' });
-              registerNodePin(`${compId}.B2`, { componentId: compId, pinId: 'sec2_out' });
-            } else if (type === 'BJT_NPN' || type === 'BJT_PNP') {
-              registerNodePin(`${compId}.B`, { componentId: compId, pinId: 'base' });
-              registerNodePin(`${compId}.C`, { componentId: compId, pinId: 'collector' });
-              registerNodePin(`${compId}.E`, { componentId: compId, pinId: 'emitter' });
-              registerNodePin(currentCoordKey, { componentId: compId, pinId: 'base' });
-            } else if (type.startsWith('GATE_')) {
-              registerNodePin(`${compId}.in`, { componentId: compId, pinId: 'in_a' });
-              registerNodePin(`${compId}.in 1`, { componentId: compId, pinId: 'in_a' });
-              registerNodePin(`${compId}.in 2`, { componentId: compId, pinId: isThreeInput ? 'in_b' : 'in_b' });
-              registerNodePin(`${compId}.in 3`, { componentId: compId, pinId: isThreeInput ? 'in_c' : 'in_b' });
-              registerNodePin(`${compId}.out`, { componentId: compId, pinId: 'out' });
-              registerNodePin(currentCoordKey, { componentId: compId, pinId: 'out' });
-            } else {
-              const pin1Id = def?.pins[0]?.id || 'p1';
-              registerNodePin(currentCoordKey, { componentId: compId, pinId: pin1Id });
-            }
+            registerPin(compId, 'in_plus', { x: currentPos.x - 0.5, y: currentPos.y - 0.25 });
+            registerPin(compId, 'in_minus', { x: currentPos.x - 0.5, y: currentPos.y + 0.25 });
+            registerPin(compId, 'out', { x: currentPos.x + 0.5, y: currentPos.y });
+            registerPin(compId, 'v_plus', { x: currentPos.x, y: currentPos.y + 0.5 });
+            registerPin(compId, 'v_minus', { x: currentPos.x, y: currentPos.y - 0.5 });
+          } else if (nodeOpts.includes('npn')) {
+            const compId = nodeId;
+            components.push({ id: compId, type: 'BJT_NPN', label: rawLabel || 'Q1', value: 'BC547', x: cPos.x, y: cPos.y, rotation: 0 });
+            registerPin(compId, 'base', { x: currentPos.x - 0.375, y: currentPos.y });
+            registerPin(compId, 'collector', { x: currentPos.x + 0.375, y: currentPos.y + 0.375 });
+            registerPin(compId, 'emitter', { x: currentPos.x + 0.375, y: currentPos.y - 0.375 });
+          } else if (nodeOpts.includes('pnp')) {
+            const compId = nodeId;
+            components.push({ id: compId, type: 'BJT_PNP', label: rawLabel || 'Q2', value: 'BC557', x: cPos.x, y: cPos.y, rotation: 0 });
+            registerPin(compId, 'base', { x: currentPos.x - 0.375, y: currentPos.y });
+            registerPin(compId, 'collector', { x: currentPos.x + 0.375, y: currentPos.y + 0.375 });
+            registerPin(compId, 'emitter', { x: currentPos.x + 0.375, y: currentPos.y - 0.375 });
+          } else if (nodeOpts.includes('not port')) {
+            const compId = nodeId;
+            components.push({ id: compId, type: 'GATE_NOT', label: rawLabel || 'U1', value: '74HC04', x: cPos.x, y: cPos.y, rotation: 0 });
+            registerPin(compId, 'in_a', { x: currentPos.x - 0.375, y: currentPos.y });
+            registerPin(compId, 'out', { x: currentPos.x + 0.375, y: currentPos.y });
+          } else if (nodeOpts.includes('and port')) {
+            const compId = nodeId;
+            const gateType = isThreeInput ? 'GATE_AND3' : 'GATE_AND';
+            components.push({ id: compId, type: gateType, label: rawLabel || 'U2', value: '74HC08', x: cPos.x, y: cPos.y, rotation: 0 });
+            registerPin(compId, 'in_a', { x: currentPos.x - 0.5, y: currentPos.y + 0.25 });
+            registerPin(compId, 'in_b', { x: currentPos.x - 0.5, y: currentPos.y - 0.25 });
+            if (isThreeInput) registerPin(compId, 'in_c', { x: currentPos.x - 0.5, y: currentPos.y });
+            registerPin(compId, 'out', { x: currentPos.x + 0.5, y: currentPos.y });
+          } else if (nodeOpts.includes('nand port')) {
+            const compId = nodeId;
+            const gateType = isThreeInput ? 'GATE_NAND3' : 'GATE_NAND';
+            components.push({ id: compId, type: gateType, label: rawLabel || 'U3', value: '74HC00', x: cPos.x, y: cPos.y, rotation: 0 });
+            registerPin(compId, 'in_a', { x: currentPos.x - 0.5, y: currentPos.y + 0.25 });
+            registerPin(compId, 'in_b', { x: currentPos.x - 0.5, y: currentPos.y - 0.25 });
+            if (isThreeInput) registerPin(compId, 'in_c', { x: currentPos.x - 0.5, y: currentPos.y });
+            registerPin(compId, 'out', { x: currentPos.x + 0.5, y: currentPos.y });
+          } else if (nodeOpts.includes('or port')) {
+            const compId = nodeId;
+            const gateType = isThreeInput ? 'GATE_OR3' : 'GATE_OR';
+            components.push({ id: compId, type: gateType, label: rawLabel || 'U4', value: '74HC32', x: cPos.x, y: cPos.y, rotation: 0 });
+            registerPin(compId, 'in_a', { x: currentPos.x - 0.5, y: currentPos.y + 0.25 });
+            registerPin(compId, 'in_b', { x: currentPos.x - 0.5, y: currentPos.y - 0.25 });
+            if (isThreeInput) registerPin(compId, 'in_c', { x: currentPos.x - 0.5, y: currentPos.y });
+            registerPin(compId, 'out', { x: currentPos.x + 0.5, y: currentPos.y });
+          } else if (nodeOpts.includes('nor port')) {
+            const compId = nodeId;
+            const gateType = isThreeInput ? 'GATE_NOR3' : 'GATE_NOR';
+            components.push({ id: compId, type: gateType, label: rawLabel || 'U5', value: '74HC02', x: cPos.x, y: cPos.y, rotation: 0 });
+            registerPin(compId, 'in_a', { x: currentPos.x - 0.5, y: currentPos.y + 0.25 });
+            registerPin(compId, 'in_b', { x: currentPos.x - 0.5, y: currentPos.y - 0.25 });
+            if (isThreeInput) registerPin(compId, 'in_c', { x: currentPos.x - 0.5, y: currentPos.y });
+            registerPin(compId, 'out', { x: currentPos.x + 0.5, y: currentPos.y });
+          } else if (nodeOpts.includes('xor port')) {
+            const compId = nodeId;
+            components.push({ id: compId, type: 'GATE_XOR', label: rawLabel || 'U6', value: '74HC86', x: cPos.x, y: cPos.y, rotation: 0 });
+            registerPin(compId, 'in_a', { x: currentPos.x - 0.5, y: currentPos.y + 0.25 });
+            registerPin(compId, 'in_b', { x: currentPos.x - 0.5, y: currentPos.y - 0.25 });
+            registerPin(compId, 'out', { x: currentPos.x + 0.5, y: currentPos.y });
+          } else if (nodeOpts.includes('xnor port')) {
+            const compId = nodeId;
+            components.push({ id: compId, type: 'GATE_XNOR', label: rawLabel || 'U7', value: '74HC266', x: cPos.x, y: cPos.y, rotation: 0 });
+            registerPin(compId, 'in_a', { x: currentPos.x - 0.5, y: currentPos.y + 0.25 });
+            registerPin(compId, 'in_b', { x: currentPos.x - 0.5, y: currentPos.y - 0.25 });
+            registerPin(compId, 'out', { x: currentPos.x + 0.5, y: currentPos.y });
+          } else if (nodeOpts.includes('transformer')) {
+            const compId = nodeId;
+            components.push({ id: compId, type: 'TRANSFORMER', label: rawLabel || 'T1', value: '10:1', x: cPos.x, y: cPos.y, rotation: 0 });
+            registerPin(compId, 'p1_in', { x: currentPos.x - 0.5, y: currentPos.y + 0.25 });
+            registerPin(compId, 'p2_in', { x: currentPos.x - 0.5, y: currentPos.y - 0.25 });
+            registerPin(compId, 'sec1_out', { x: currentPos.x + 0.5, y: currentPos.y + 0.25 });
+            registerPin(compId, 'sec2_out', { x: currentPos.x + 0.5, y: currentPos.y - 0.25 });
+          } else if (rawLabel) {
+            // Anotação textual ou rótulo de terminal
+            const compId = `txt_${compCounter++}`;
+            let textOffsetY = 0;
+            let textOffsetX = 0;
+            if (nodeOpts.includes('below')) textOffsetY = 24;
+            else if (nodeOpts.includes('above')) textOffsetY = -24;
+            else if (nodeOpts.includes('right')) textOffsetX = 30;
+            else if (nodeOpts.includes('left')) textOffsetX = -30;
+
+            components.push({
+              id: compId,
+              type: 'TEXT',
+              label: rawLabel,
+              value: rawLabel,
+              x: cPos.x + textOffsetX,
+              y: cPos.y + textOffsetY,
+              rotation: 0,
+            });
           }
         }
-      } else if (fullToken.startsWith('(')) {
-        const coordStr = tokenMatch[1].trim();
-        if (coordStr.includes('|-') || coordStr.includes('-|')) {
-          // Expressões TikZ de intersecção ortogonal como "(0.5, 0 |- G0.in 1)"
-          const isVH = coordStr.includes('|-');
-          const [leftPart, rightPart] = coordStr.split(isVH ? '|-' : '-|').map((s) => s.trim());
-          const xVal = parseFloat(leftPart.split(',')[0] || '0');
-
-          let yVal = 0;
-          const targetAnchorKey = rightPart.trim();
-          const parts = targetAnchorKey.split('.');
-          const cId = parts[0];
-          const anchor = parts.slice(1).join('.');
-
-          const comp = components.find((c) => c.id === cId);
-          if (comp) {
-            const def = COMPONENT_DEFINITIONS[comp.type];
-            const pinMap: Record<string, string> = {
-              B: 'base',
-              C: 'collector',
-              E: 'emitter',
-              in: 'in_a',
-              'in 1': 'in_a',
-              'in 2': 'in_b',
-              'in 3': 'in_c',
-              out: 'out',
-            };
-            const targetPinId = pinMap[anchor] || 'in_a';
-            const pinDef = def?.pins.find((p) => p.id === targetPinId);
-
-            const relY = pinDef ? pinDef.relY : 0;
-            const absY = comp.y + relY;
-            yVal = (originY - absY) / scale;
-          }
-
-          if (!isNaN(xVal)) {
-            currentCoordVal = { x: xVal, y: yVal };
-            currentCoordKey = `${xVal},${yVal}`;
-          }
-        } else if (coordStr.includes(',')) {
-          const [x, y] = coordStr.split(',').map((s) => parseFloat(s.trim()));
-          if (!isNaN(x) && !isNaN(y)) {
-            currentCoordVal = { x, y };
-            currentCoordKey = `${x},${y}`;
-          }
-        } else {
-          // Trata-se de um nó/âncora nomeado no TikZ (ex: Q1.C, G0.in 1, N03.in, G0.out)
-          currentCoordKey = coordStr;
-          const parts = coordStr.split('.');
-          const cId = parts[0];
-          const anchor = parts.slice(1).join('.');
-
-          const comp = components.find((c) => c.id === cId);
-          if (comp) {
-            const def = COMPONENT_DEFINITIONS[comp.type];
-            const pinMap: Record<string, string> = {
-              B: 'base',
-              C: 'collector',
-              E: 'emitter',
-              in: 'in_a',
-              'in 1': 'in_a',
-              'in 2': 'in_b',
-              'in 3': 'in_c',
-              out: 'out',
-            };
-            const targetPinId = pinMap[anchor] || 'in_a';
-            const pinDef = def?.pins.find((p) => p.id === targetPinId);
-
-            const relX = pinDef ? pinDef.relX : 0;
-            const relY = pinDef ? pinDef.relY : 0;
-            const absX = comp.x + relX;
-            const absY = comp.y + relY;
-
-            const tikzX = (absX - originX) / scale;
-            const tikzY = (originY - absY) / scale;
-            currentCoordVal = { x: tikzX, y: tikzY };
-          }
+      } else if (tm[14]) {
+        const destRaw = tm[15].trim();
+        const pt = resolvePoint(destRaw, currentPos);
+        if (pt) {
+          currentPos = pt;
         }
       }
     }
   }
 
-  // GERADOR AUTOMÁTICO DE FIOS DE CONEXÃO (WIRES)
+  // 3. GRAFO DE CONECTIVIDADE E GERAÇÃO INTELIGENTE DE FIOS E JUNÇÕES
+  const graph = new Map<string, Set<string>>();
+  const keyToCanvas = new Map<string, { x: number; y: number }>();
+
+  const addEdge = (ptA: { x: number; y: number }, ptB: { x: number; y: number }) => {
+    const cA = toCanvas(ptA);
+    const cB = toCanvas(ptB);
+    const kA = canvasKey(cA);
+    const kB = canvasKey(cB);
+
+    keyToCanvas.set(kA, cA);
+    keyToCanvas.set(kB, cB);
+
+    if (!graph.has(kA)) graph.set(kA, new Set());
+    if (!graph.has(kB)) graph.set(kB, new Set());
+
+    graph.get(kA)!.add(kB);
+    graph.get(kB)!.add(kA);
+  };
+
+  lineEdges.forEach(({ p1, p2 }) => {
+    addEdge(p1, p2);
+  });
+
+  const pinsAtKey = new Map<string, PinLoc[]>();
+  pinLocations.forEach((pRef) => {
+    const k = canvasKey(pRef.canvasPt);
+    keyToCanvas.set(k, pRef.canvasPt);
+    if (!pinsAtKey.has(k)) pinsAtKey.set(k, []);
+    pinsAtKey.get(k)!.push(pRef);
+    if (!graph.has(k)) graph.set(k, new Set());
+  });
+
+  // Conecta nós compartilhados
+  pinsAtKey.forEach((pins) => {
+    for (let i = 0; i < pins.length; i++) {
+      for (let j = i + 1; j < pins.length; j++) {
+        const kA = canvasKey(pins[i].canvasPt);
+        if (!graph.has(kA)) graph.set(kA, new Set());
+      }
+    }
+  });
+
+  const visited = new Set<string>();
+  const nets: string[][] = [];
+
+  graph.forEach((_, k) => {
+    if (!visited.has(k)) {
+      const netKeys: string[] = [];
+      const queue = [k];
+      visited.add(k);
+
+      while (queue.length > 0) {
+        const curr = queue.shift()!;
+        netKeys.push(curr);
+        const neighbors = graph.get(curr) || new Set();
+        neighbors.forEach((n) => {
+          if (!visited.has(n)) {
+            visited.add(n);
+            queue.push(n);
+          }
+        });
+      }
+
+      nets.push(netKeys);
+    }
+  });
+
   const createdWireKeys = new Set<string>();
-
-  const addWire = (ref1: NodePinRef, ref2: NodePinRef) => {
-    if (ref1.componentId === ref2.componentId) return;
-    const k1 = `${ref1.componentId}:${ref1.pinId}-${ref2.componentId}:${ref2.pinId}`;
-    const k2 = `${ref2.componentId}:${ref2.pinId}-${ref1.componentId}:${ref1.pinId}`;
-
+  const addWireDirect = (
+    fromRef: { componentId: string; pinId: string },
+    toRef: { componentId: string; pinId: string },
+    waypoints?: { x: number; y: number }[]
+  ) => {
+    if (fromRef.componentId === toRef.componentId) return;
+    const k1 = `${fromRef.componentId}:${fromRef.pinId}-${toRef.componentId}:${toRef.pinId}`;
+    const k2 = `${toRef.componentId}:${toRef.pinId}-${fromRef.componentId}:${fromRef.pinId}`;
     if (!createdWireKeys.has(k1) && !createdWireKeys.has(k2)) {
       createdWireKeys.add(k1);
       createdWireKeys.add(k2);
       wires.push({
         id: `wire_tex_${Date.now()}_${wires.length + 1}`,
-        from: { componentId: ref1.componentId, pinId: ref1.pinId },
-        to: { componentId: ref2.componentId, pinId: ref2.pinId },
+        from: { componentId: fromRef.componentId, pinId: fromRef.pinId },
+        to: { componentId: toRef.componentId, pinId: toRef.pinId },
+        waypoints: waypoints && waypoints.length > 0 ? waypoints : undefined,
       });
     }
   };
 
-  // 1. Conecta todos os pinos que compartilham o mesmo Nó no TikZ
-  Object.values(tikzNodeMap).forEach((pinRefs) => {
-    for (let i = 0; i < pinRefs.length; i++) {
-      for (let j = i + 1; j < pinRefs.length; j++) {
-        addWire(pinRefs[i], pinRefs[j]);
-      }
-    }
-  });
-
-  // 2. Conecta pinos ligados por segmentos de linha (--, -|, |-)
-  straightLineSegments.forEach(({ key1, key2 }) => {
-    let pinsAt1 = tikzNodeMap[key1] || [];
-    let pinsAt2 = tikzNodeMap[key2] || [];
-
-    // Se a chave não for uma âncora explícita, procura pinos por proximidade espacial (raio de 25px no canvas)
-    if (pinsAt1.length === 0 && key1.includes(',')) {
-      const [x1, y1] = key1.split(',').map(Number);
-      const px1 = snapToGrid(Math.round(originX + x1 * scale));
-      const py1 = snapToGrid(Math.round(originY - y1 * scale));
-
-      components.forEach((comp) => {
-        const def = COMPONENT_DEFINITIONS[comp.type];
-        if (def) {
-          def.pins.forEach((pin) => {
-            const pX = comp.x + pin.relX;
-            const pY = comp.y + pin.relY;
-            if (Math.hypot(px1 - pX, py1 - pY) <= 30) {
-              pinsAt1.push({ componentId: comp.id, pinId: pin.id });
-            }
-          });
-        }
-      });
-    }
-
-    if (pinsAt2.length === 0 && key2.includes(',')) {
-      const [x2, y2] = key2.split(',').map(Number);
-      const px2 = snapToGrid(Math.round(originX + x2 * scale));
-      const py2 = snapToGrid(Math.round(originY - y2 * scale));
-
-      components.forEach((comp) => {
-        const def = COMPONENT_DEFINITIONS[comp.type];
-        if (def) {
-          def.pins.forEach((pin) => {
-            const pX = comp.x + pin.relX;
-            const pY = comp.y + pin.relY;
-            if (Math.hypot(px2 - pX, py2 - pY) <= 30) {
-              pinsAt2.push({ componentId: comp.id, pinId: pin.id });
-            }
-          });
-        }
-      });
-    }
-
-    pinsAt1.forEach((p1) => {
-      pinsAt2.forEach((p2) => {
-        addWire(p1, p2);
-      });
+  nets.forEach((netKeys) => {
+    const netPins: PinLoc[] = [];
+    netKeys.forEach((k) => {
+      const pins = pinsAtKey.get(k) || [];
+      pins.forEach((p) => netPins.push(p));
     });
+
+    if (netPins.length < 2) return;
+
+    // Critério universal de JUNCTION: grau de linhas + pinos >= 3
+    const junctionCandidates = netKeys.filter((k) => {
+      const deg = (graph.get(k) || new Set()).size;
+      const pinsHere = (pinsAtKey.get(k) || []).length;
+      return deg + pinsHere >= 3;
+    });
+
+    if (junctionCandidates.length > 0) {
+      const junctionMap = new Map<string, { componentId: string; pinId: string; canvasPt: { x: number; y: number } }>();
+      junctionCandidates.forEach((jk) => {
+        const cPt = keyToCanvas.get(jk)!;
+        const jId = `junc_tex_${Date.now()}_${compCounter++}`;
+        components.push({
+          id: jId,
+          type: 'JUNCTION',
+          label: '',
+          value: '',
+          x: cPt.x,
+          y: cPt.y,
+          rotation: 0,
+        });
+        const jRef = { componentId: jId, pinId: 'p1', canvasPt: cPt };
+        junctionMap.set(jk, jRef);
+        (pinsAtKey.get(jk) || []).forEach((p) => {
+          addWireDirect(p, jRef);
+        });
+      });
+
+      netPins.forEach((pRef) => {
+        const pKey = canvasKey(pRef.canvasPt);
+        if (junctionMap.has(pKey)) return;
+
+        const q = [{ key: pKey, path: [pRef.canvasPt] }];
+        const qVis = new Set([pKey]);
+        let foundJunc: { jRef: { componentId: string; pinId: string }; path: { x: number; y: number }[] } | null = null;
+
+        while (q.length > 0) {
+          const { key: curK, path } = q.shift()!;
+          if (junctionMap.has(curK)) {
+            foundJunc = { jRef: junctionMap.get(curK)!, path };
+            break;
+          }
+          (graph.get(curK) || new Set()).forEach((nb) => {
+            if (!qVis.has(nb)) {
+              qVis.add(nb);
+              q.push({ key: nb, path: [...path, keyToCanvas.get(nb)!] });
+            }
+          });
+        }
+
+        if (foundJunc) {
+          const waypoints = foundJunc.path.slice(1, -1);
+          addWireDirect(pRef, foundJunc.jRef, waypoints);
+        }
+      });
+
+      const jKeys = Array.from(junctionMap.keys());
+      for (let i = 0; i < jKeys.length; i++) {
+        for (let j = i + 1; j < jKeys.length; j++) {
+          const startK = jKeys[i];
+          const endK = jKeys[j];
+
+          const q = [{ key: startK, path: [keyToCanvas.get(startK)!] }];
+          const qVis = new Set([startK]);
+          let pathFound: { x: number; y: number }[] | null = null;
+
+          while (q.length > 0) {
+            const { key: curK, path } = q.shift()!;
+            if (curK === endK) {
+              pathFound = path;
+              break;
+            }
+            if (curK !== startK && junctionMap.has(curK)) continue;
+
+            (graph.get(curK) || new Set()).forEach((nb) => {
+              if (!qVis.has(nb)) {
+                qVis.add(nb);
+                q.push({ key: nb, path: [...path, keyToCanvas.get(nb)!] });
+              }
+            });
+          }
+
+          if (pathFound) {
+            const waypoints = pathFound.slice(1, -1);
+            addWireDirect(junctionMap.get(startK)!, junctionMap.get(endK)!, waypoints);
+          }
+        }
+      }
+    } else {
+      // 2 pinos simples
+      const startK = canvasKey(netPins[0].canvasPt);
+      const endK = canvasKey(netPins[1].canvasPt);
+
+      const q = [{ key: startK, path: [netPins[0].canvasPt] }];
+      const qVis = new Set([startK]);
+      let pathFound: { x: number; y: number }[] | null = null;
+
+      while (q.length > 0) {
+        const { key: curK, path } = q.shift()!;
+        if (curK === endK) {
+          pathFound = path;
+          break;
+        }
+        (graph.get(curK) || new Set()).forEach((nb) => {
+          if (!qVis.has(nb)) {
+            qVis.add(nb);
+            q.push({ key: nb, path: [...path, keyToCanvas.get(nb)!] });
+          }
+        });
+      }
+
+      const waypoints = pathFound ? pathFound.slice(1, -1) : undefined;
+      addWireDirect(netPins[0], netPins[1], waypoints);
+    }
   });
+
+  // 4. Normalização do Bounding Box: posiciona o circuito no espaço visual ideal do canvas
+  if (components.length > 0) {
+    let minX = Infinity;
+    let minY = Infinity;
+    components.forEach((c) => {
+      if (c.x < minX) minX = c.x;
+      if (c.y < minY) minY = c.y;
+    });
+
+    const targetMinX = 140;
+    const targetMinY = 140;
+    const shiftX = snapToGrid(targetMinX - minX);
+    const shiftY = snapToGrid(targetMinY - minY);
+
+    if (shiftX !== 0 || shiftY !== 0) {
+      components.forEach((c) => {
+        c.x += shiftX;
+        c.y += shiftY;
+      });
+      wires.forEach((w) => {
+        if (w.waypoints) {
+          w.waypoints.forEach((wp) => {
+            wp.x += shiftX;
+            wp.y += shiftY;
+          });
+        }
+      });
+    }
+  }
 
   return { components, wires };
 }
